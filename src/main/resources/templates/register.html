@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/register.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:19:52 GMT -->
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>502工作室 - 注册</title>
+    <script src="https://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+
+    <link rel="shortcut icon" href="favicon.ico"> <link th:href="@{/css/bootstrap.min14ed.css}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.min93e3.css}" rel="stylesheet">
+    <link th:href="@{/css/plugins/iCheck/custom.css}" rel="stylesheet">
+    <link th:href="@{/css/animate.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.min862f.css}" rel="stylesheet">
+    <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
+
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen   animated fadeInDown">
+        <div>
+            <div>
+
+                <h1 class="logo-name">502</h1>
+
+            </div>
+            <h3>欢迎注册</h3>
+            <p>创建一个502新账户</p>
+            <!--action="/geekdaily/register"-->
+            <form class="m-t" role="form" method="post">
+                <div class="form-group">
+                    <input type="text" id="userName" name="userName" class="form-control" placeholder="请输入用户名" required="">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="password" class="form-control" placeholder="请输入密码" required="">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="confirm_password" class="form-control" placeholder="请再次输入密码" required="">
+                </div>
+                <div class="form-group text-left">
+                    <div class="checkbox i-checks">
+                        <label class="no-padding">
+                            <input type="checkbox"><i></i> 我同意注册协议</label>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary block full-width m-b" onclick="register()">注 册</button>
+
+                <p class="text-muted text-center"><small>已经有账户了？</small><a href="/geekdaily/login">点此登录</a>
+                </p>
+
+            </form>
+        </div>
+    </div>
+    <!--<script src="js/jquery.min.js?v=2.1.4"></script>-->
+    <!--<script src="js/bootstrap.min.js?v=3.3.6"></script>-->
+    <!--<script src="js/plugins/iCheck/icheck.min.js"></script>-->
+    <!--<script>-->
+        <!--$(document).ready(function(){$(".i-checks").iCheck({checkboxClass:"icheckbox_square-green",radioClass:"iradio_square-green",})});-->
+    <!--</script>-->
+    <script type="text/javascript" src="https://tajs.qq.com/stats?sId=9051096" charset="UTF-8"></script>
+
+    <script>
+        function register() {
+            var userName = document.getElementById("userName").value;
+            var password = document.getElementById("password").value;
+            var confirm_password = document.getElementById("confirm_password").value;
+            if(userName == ""|| password == "" ||confirm_password == ""){
+                alert("请填写完整表单!");
+                return;
+            }
+            if(password != confirm_password){
+                alert("两次输入密码不一致!");
+                return;
+            }
+            $.ajax({
+                type: "POST",
+                url: "/geekdaily/register",
+                data: {"nick_name":userName,"password":password},
+                success: function(data){
+                    //前端调用成功后，可以处理后端传回的json格式数据。
+                    if(data.code == 0){
+                        //注册成功之后  跳转到登陆
+                        window.location.href = "/geekdaily/";
+                    }else {
+                        window.alert(data.msg);
+                    }
+                },
+                error:function (data) {
+                    window.alert(data.msg);
+                }
+            })
+
+        }
+    </script>
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/register.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:19:52 GMT -->
+</html>

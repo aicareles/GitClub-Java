@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>文件上传</title>
+</head>
+<body>
+<form action="/geekdaily/uploadEditFile" th:object="${uploadFile}" method="post" enctype="multipart/form-data" accept-charset="UTF-8">
+    <p><input type="text" name="fileName" placeholder="*{fileName}" th:field="*{fileName}"/></p>
+    <p><input type="text" name="newFileName" placeholder="请编辑新的文件名" /></p>
+    <p><input type="text" name="des" placeholder="*{des}" th:field="*{des}"/></p>
+    <p><input type="submit" value="Upload"/></p>
+</form>
+
+</body>
+</html>

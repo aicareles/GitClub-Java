@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:overflow="http://www.w3.org/1999/xhtml"
+      xmlns:white-space="http://www.w3.org/1999/xhtml" xmlns:word-break="http://www.w3.org/1999/xhtml"
+      xmlns:text-overflow="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>117宿舍预测结果列表</title>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+</head>
+<body>
+<table width="1000">
+    <thead>
+    <tr>
+        <th>宿舍昵称</th>
+        <th>预测比赛信息</th>
+        <th>预测比分</th>
+        <th>提交日期</th>
+    </tr>
+    </thead>
+    <tbody align="center" th:remove="all-but-first">
+    <tr th:each="game : ${gameList}">
+        <td width="20%" overflow:scroll th:text="${game.nick_name}">117-8</td>
+        <td width="200px" white-space:nowrap th:text="${game.game_info}">葡萄牙-阿根廷</td>
+        <td th:text="${game.game_score}">3:0</td>
+        <!--<td th:text="${file.date}">2018-06-15</td>-->
+        <td th:text="${#dates.format(game.date, 'yyyy-MM-dd HH:mm:ss')}">2018-06-15 23:23:23</td>
+
+        <!--<td>-->
+            <!--<button type="button" th:id="${game.id}" id="edit" onclick="edit(this)">编辑</button>-->
+        <!--</td>-->
+
+        <!--<td>-->
+            <!--<button type="button" th:id="${game.id}" id="delete" onclick="del(this)">删除</button>-->
+        <!--</td>-->
+
+        <!--<script>-->
+            <!--function edit(obj) {-->
+                <!--var id = $(obj).attr("id");-->
+                <!--window.location.href = "/editFile?id="+id;-->
+            <!--}-->
+        <!--</script>-->
+
+        <!--<script>-->
+            <!--function del(obj) {-->
+                <!--var id = $(obj).attr("id");-->
+                <!--window.location.href = "/delete?id="+id;-->
+            <!--}-->
+        <!--</script>-->
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
