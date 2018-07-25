@@ -3,7 +3,7 @@ package com.jerry.geekdaily.domain;
 import com.alibaba.fastjson.annotation.JSONField;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -20,6 +20,11 @@ public class ESArticle implements Serializable {
     private String img_url;//头像
 
     private String link;//源url
+
+    //此字段不返回
+    @JSONField(serialize=false)
+    @Lob @Basic(fetch = FetchType.LAZY) @Column(columnDefinition = "text")
+    private String md_content;//md风格的文本
 
     private String wrap_link;//外部url
 
@@ -96,6 +101,14 @@ public class ESArticle implements Serializable {
 
     public void setLink(String link) {
         this.link = link;
+    }
+
+    public String getMd_content() {
+        return md_content;
+    }
+
+    public void setMd_content(String md_content) {
+        this.md_content = md_content;
     }
 
     public String getWrap_link() {

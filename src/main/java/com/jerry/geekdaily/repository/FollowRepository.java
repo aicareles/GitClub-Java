@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FollowRepository extends JpaRepository<Follow, Integer> {
 
-    Follow findByUserIdAndTargetId(int userId, int targetId);
+    Follow findByUserIdAndFansId(int userId, int fansId);
 
     //获取我关注的对象列表
     Page<Follow> findFollowsByFansIdAndStatusLike(int fansId, int status, Pageable pageable);

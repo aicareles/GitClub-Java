@@ -110,6 +110,7 @@ public class ArticleController {
             @ApiImplicitParam(name = "contributor", value = "贡献者", required = false ,dataType = "string"),
             @ApiImplicitParam(name = "contributor_id", value = "贡献者ID", required = false ,dataType = "int"),
             @ApiImplicitParam(name = "link", value = "文章链接", required = true ,dataType = "string"),
+            @ApiImplicitParam(name = "md_content", value = "MD风格文本", required = true ,dataType = "string"),
             @ApiImplicitParam(name = "article_img", value = "文章大图", required = true ,dataType = "file")
     })
     @CacheEvict(value="ArticleController", allEntries=true)//上传添加文章，将文章相关缓存清空
@@ -120,6 +121,7 @@ public class ArticleController {
                                 @RequestParam(value = "contributor") String contributor,
                                 @RequestParam(value = "contributor_id") int contributor_id,
                                 @RequestParam(value = "link") String link,
+                                @RequestParam(value = "md_content")String md_content,
                                 @RequestParam("article_img") MultipartFile file) {
         if(StringUtils.isEmpty(title) || StringUtils.isEmpty(des) || StringUtils.isEmpty(tag)
                 || StringUtils.isEmpty(link) || StringUtils.isEmpty(file)){
@@ -137,6 +139,7 @@ public class ArticleController {
         article.setContributor(contributor);
         article.setContributor_id(contributor_id);
         article.setLink(link);
+        article.setMd_content(md_content);
         String wrap_link = LinkUtils.gererateShortUrl(link);
         article.setWrap_link(wrap_link);
         article.setDate(new Date());
@@ -474,6 +477,26 @@ public class ArticleController {
         //更新数据到引擎
         articleSearchRepository.save(new ESArticle(article));
         return ResultUtils.ok(article);
+    }
+
+    /**
+     * 获取文章详情对应的MD文本
+     * @param article_id 文章ID
+     * @return MD文本
+     */
+    @ApiOperation(value = "获取文章详情对应的MD文本", notes = "获取文章详情接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "article_id", value = "文章ID", required = true ,dataType = "int")
+    })
+    @Cacheable
+    @PostMapping("/getArticleDetail")
+    public Result<String> getArticleDetail(@RequestParam int article_id){
+        //先查询该文章
+        Article article = articleRepository.findArticleByArticle_id(article_id);
+        if(StringUtils.isEmpty(article)){
+            return ResultUtils.error("未找到相应文章");
+        }
+        return ResultUtils.ok(article.getMd_content());
     }
 
 }

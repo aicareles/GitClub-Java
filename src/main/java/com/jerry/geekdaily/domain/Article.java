@@ -23,6 +23,11 @@ public class Article implements Serializable {
 
     private String link;//源url
 
+    //此字段不返回
+    @JSONField(serialize=false)
+    @Lob @Basic(fetch = FetchType.LAZY) @Column(columnDefinition = "text")
+    private String md_content;//md风格的文本
+
     private String wrap_link;//外部url
 
     private String contributor;//贡献者
@@ -87,6 +92,14 @@ public class Article implements Serializable {
 
     public void setLink(String link) {
         this.link = link;
+    }
+
+    public String getMd_content() {
+        return md_content;
+    }
+
+    public void setMd_content(String md_content) {
+        this.md_content = md_content;
     }
 
     public String getWrap_link() {
