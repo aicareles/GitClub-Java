@@ -14,13 +14,17 @@ public class User implements Serializable {
     @GeneratedValue
     private Integer user_id;
 
+    //微信的openid  唯一
+    private String open_id;
+
+    //微信的session_key
+    private String session_key;
+
     private String nick_name;
 
     //此字段不返回
     @JSONField(serialize=false)
     private String pwd;
-
-    private String wechat_id;
 
     private String avatar;
 
@@ -45,6 +49,22 @@ public class User implements Serializable {
         this.user_id = user_id;
     }
 
+    public String getOpen_id() {
+        return open_id;
+    }
+
+    public void setOpen_id(String open_id) {
+        this.open_id = open_id;
+    }
+
+    public String getSession_key() {
+        return session_key;
+    }
+
+    public void setSession_key(String session_key) {
+        this.session_key = session_key;
+    }
+
     public String getNick_name() {
         return nick_name;
     }
@@ -59,14 +79,6 @@ public class User implements Serializable {
 
     public void setPwd(String pwd) {
         this.pwd = pwd;
-    }
-
-    public String getWechat_id() {
-        return wechat_id;
-    }
-
-    public void setWechat_id(String wechat_id) {
-        this.wechat_id = wechat_id;
     }
 
     public String getAvatar() {
@@ -110,16 +122,19 @@ public class User implements Serializable {
 //        this.articleList = articleList;
 //    }
 
+
     @Override
     public String toString() {
         return "User{" +
-                ", user_id=" + user_id +
+                "user_id=" + user_id +
+                ", open_id='" + open_id + '\'' +
+                ", session_key='" + session_key + '\'' +
                 ", nick_name='" + nick_name + '\'' +
                 ", pwd='" + pwd + '\'' +
-                ", wechat_id='" + wechat_id + '\'' +
                 ", avatar='" + avatar + '\'' +
                 ", gender='" + gender + '\'' +
                 ", city='" + city + '\'' +
+                ", date=" + date +
                 '}';
     }
 }

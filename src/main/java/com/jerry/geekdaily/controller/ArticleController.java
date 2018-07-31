@@ -165,6 +165,7 @@ public class ArticleController {
             @ApiImplicitParam(name = "des", value = "文章描述", required = false, dataType = "string"),
             @ApiImplicitParam(name = "tag", value = "文章标签", required = false ,dataType = "string"),
             @ApiImplicitParam(name = "link", value = "文章链接", required = false ,dataType = "string"),
+            @ApiImplicitParam(name = "md_content", value = "MD风格文本", required = false ,dataType = "string"),
             @ApiImplicitParam(name = "article_img", value = "文章大图", required = false ,dataType = "file")
     })
     @CacheEvict(value="ArticleController", allEntries=true)//更新文章，将文章相关缓存清空
@@ -174,6 +175,7 @@ public class ArticleController {
                                          @RequestParam(value = "des") String des,
                                          @RequestParam(value = "tag") String tag,
                                          @RequestParam(value = "link") String link,
+                                         @RequestParam(value = "md_content")String md_content,
                                          @RequestParam("article_img") MultipartFile file) {
         if(StringUtils.isEmpty(article_id)){
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
@@ -201,6 +203,9 @@ public class ArticleController {
         }
         if(!StringUtils.isEmpty(link)){
             article.setLink(link);
+        }
+        if(!StringUtils.isEmpty(md_content)){
+            article.setMd_content(md_content);
         }
         article.setDate(new Date());
         articleRepository.saveAndFlush(article);
@@ -276,20 +281,22 @@ public class ArticleController {
 
     /**
      * 获取所有文章列表
-     * @param page 当前页数 （默认每页10条数据）
+     * @param page 当前页数
+     * @param size 返回数量
      * @return 当前页文章列表
      */
     @ApiOperation(value = "获取所有文章", notes = "获取所有文章列表接口")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "当前页", required = true ,dataType = "int")
+            @ApiImplicitParam(name = "page", value = "当前页", required = true ,dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "返回数量", required = true ,dataType = "int")
     })
     @Cacheable
     @PostMapping("/getArticleList")
-    public Result<Article> getArticleList(@Param("page")Integer page) {
+    public Result<Article> getArticleList(@Param("page")Integer page, @RequestParam("size")Integer size) {
         if(StringUtils.isEmpty(page)){
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
         }
-        Page<Article> pages = articleRepository.findAll(PageRequest.of(page,10, new Sort(Sort.Direction.DESC, "date")));
+        Page<Article> pages = articleRepository.findAll(PageRequest.of(page,size, new Sort(Sort.Direction.DESC, "date")));
         return ResultUtils.ok(pages.getContent());
     }
 
@@ -298,7 +305,7 @@ public class ArticleController {
      * @param article_id  文章id
      * @param user_id 用户id
      * @param type 点赞类型    1文章点赞  2评论点赞
-     * @param status 1点赞  0取消
+     * @param status 1 点赞  0取消点赞
      */
     @ApiOperation(value = "点赞或取消点赞", notes = "点赞或取消点赞接口")
     @ApiImplicitParams({
@@ -313,60 +320,59 @@ public class ArticleController {
         //先查看该用户是否已经点赞，如果没有点赞 则增加一条记录，如果已经点赞，查看点赞的状态status,如果该值为0 则设置为1，如果为1则设置为0；
         Stars starts = starsRepository.findByUser_idAndArticle_id(user_id, article_id);
         Optional<Article> optional = articleRepository.findById(article_id);
+        String msg = "点赞成功!";
         if(!optional.isPresent()){
             return ResultUtils.error("文章ID不存在!");
         }
+        Article article = optional.get();
         if(starts == null){
             //不存在   插入点赞
-            Stars start = new Stars();
-            start.setArticle_id(article_id);
-            start.setUser_id(user_id);
-            start.setStatus(status);
-            start.setType(type);
-            start.setDate(new Date());
-            starsRepository.save(start);
+            starts = new Stars();
+            starts.setArticle_id(article_id);
+            starts.setUser_id(user_id);
+            starts.setStatus(1);
+            starts.setType(type);
+            starts.setDate(new Date());
             //往article表中添加star
-            Article article = optional.get();
             article.setStars(article.getStars()+1);
-            articleRepository.saveAndFlush(article);
-            //更新数据到引擎
-            articleSearchRepository.save(new ESArticle(article));
         }else {
             //往article表中添加star
-            Article article = optional.get();
             //存在数据   则判断点赞状态
             if(starts.getStatus() == 1){
                 //取消
                 starts.setStatus(0);
                 article.setStars(article.getStars()-1);
+                msg = "取消点赞成功!";
             }else {
                 //点赞
                 starts.setStatus(1);
                 article.setStars(article.getStars()+1);
             }
-            starsRepository.saveAndFlush(starts);
-            articleRepository.saveAndFlush(article);
-            //更新数据到引擎
-            articleSearchRepository.save(new ESArticle(article));
         }
-        return ResultUtils.ok("点赞成功!");
+        starsRepository.saveAndFlush(starts);
+        articleRepository.saveAndFlush(article);
+        //更新数据到引擎
+        articleSearchRepository.save(new ESArticle(article));
+        return ResultUtils.ok(msg);
     }
 
     /**
      * 获取文章的所有点赞者
      * @param page 当前页数
+     * @param size  返回数量
      * @param article_id  文章id
      * @return
      */
     @ApiOperation(value = "获取文章点赞者", notes = "获取文章点赞者接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "当前页", required = true ,dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "返回数量", required = true ,dataType = "int"),
             @ApiImplicitParam(name = "article_id", value = "文章ID", required = true, dataType = "int")
     })
     @Cacheable
     @PostMapping("/getArticleStarers")
-    public Result<User> getArticleStarers(@RequestParam("page")Integer page, @RequestParam("article_id")int article_id){
-        Page<Stars> pages = starsRepository.findStarsByArticle_id(article_id, PageRequest.of(page,10, new Sort(Sort.Direction.DESC, "date")));//
+    public Result<User> getArticleStarers(@RequestParam("page")Integer page, @RequestParam("size")Integer size, @RequestParam("article_id")int article_id){
+        Page<Stars> pages = starsRepository.findStarsByArticle_id(article_id, PageRequest.of(page,size, new Sort(Sort.Direction.DESC, "date")));//
         List<Stars> contents = pages.getContent();
         List<User> userList = new ArrayList<>();
         for (Stars stars : contents){
@@ -379,22 +385,24 @@ public class ArticleController {
     /**
      * 获取我  点赞的文章列表
      * @param page
+     * @param size
      * @param user_id
      * @return
      */
     @ApiOperation(value = "获取我的点赞文章列表", notes = "获取我的点赞文章列表接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "当前页", required = true ,dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "返回数量", required = true ,dataType = "int"),
             @ApiImplicitParam(name = "user_id", value = "用户ID", required = true, dataType = "int")
     })
     @Cacheable
     @PostMapping("/getMyStarArticles")
-    public Result<Article> getMyStarArticles(@RequestParam("page")Integer page, @RequestParam("user_id")int user_id){
+    public Result<Article> getMyStarArticles(@RequestParam("page")Integer page, @RequestParam("size")Integer size, @RequestParam("user_id")int user_id){
         User user = userRepository.findUserByUser_id(user_id);
         if(StringUtils.isEmpty(user)){
             return ResultUtils.error("未找到相关用户!");
         }
-        Page<Stars> pages = starsRepository.findStarsByUser_id(user_id, PageRequest.of(page,10, new Sort(Sort.Direction.DESC, "date")));
+        Page<Stars> pages = starsRepository.findStarsByUser_id(user_id, PageRequest.of(page,size, new Sort(Sort.Direction.DESC, "date")));
         List<Stars> contents = pages.getContent();
         List<Article> articleList = new ArrayList<>();
         for (Stars stars: contents) {
@@ -404,48 +412,52 @@ public class ArticleController {
         return ResultUtils.ok(articleList);
     }
 
-
     /**
      * 获取我  贡献的文章列表
-     * @param page
-     * @param user_id
+     * @param page 当前页
+     * @param size 返回数量
+     * @param user_id 用户ID
      * @return
      */
     @ApiOperation(value = "获取我的上传文章列表", notes = "获取我的上传文章列表接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "当前页", required = true ,dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "返回数量", required = true ,dataType = "int"),
             @ApiImplicitParam(name = "user_id", value = "用户ID", required = true, dataType = "int")
     })
     @Cacheable
     @PostMapping("/getMyContributeArticles")
-    public Result<Article> getMyContributeArticles(@RequestParam("page")Integer page, @RequestParam("user_id")int user_id){
+    public Result<Article> getMyContributeArticles(@RequestParam("page")Integer page, @RequestParam("size")Integer size, @RequestParam("user_id")int user_id){
         User user = userRepository.findUserByUser_id(user_id);
         if(StringUtils.isEmpty(user)){
             return ResultUtils.error("未找到相关用户!");
         }
-        Page<Article> pages = articleRepository.findAllByContributor_id(user_id, PageRequest.of(page,10, new Sort(Sort.Direction.DESC, "date")));
+        Page<Article> pages = articleRepository.findAllByContributor_id(user_id, PageRequest.of(page,size, new Sort(Sort.Direction.DESC, "date")));
         List<Article> articleList = pages.getContent();
         return ResultUtils.ok(articleList);
     }
 
     /**
      * 获取我评论过的文章列表
-     * @param user_id
-     * @return
+     * @param page 当前页数
+     * @param size 返回数量
+     * @param user_id 用户id
+     * @return 文章列表
      */
     @ApiOperation(value = "获取我评论过的文章列表", notes = "获取我评论过的文章列表接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "当前页数", required = true ,dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "返回数量", required = true ,dataType = "int"),
             @ApiImplicitParam(name = "user_id", value = "用户ID", required = true ,dataType = "int")
     })
     @Cacheable
     @PostMapping("/getMyCommentArticles")
-    public Result<Article> getMyCommentArticles(@RequestParam("page")Integer page, @RequestParam("user_id")int user_id){
+    public Result<Article> getMyCommentArticles(@RequestParam("page")Integer page, @RequestParam("size")Integer size, @RequestParam("user_id")int user_id){
         User user = userRepository.findUserByUser_id(user_id);
         if(StringUtils.isEmpty(user)){
             return ResultUtils.error("未找到相关用户!");
         }
-        Page<Comment> pages = commentRepository.getAllByFrom_uid(user_id, PageRequest.of(page,10, new Sort(Sort.Direction.DESC, "date")));
+        Page<Comment> pages = commentRepository.getAllByFrom_uid(user_id, PageRequest.of(page,size, new Sort(Sort.Direction.DESC, "date")));
         List<Comment> comments = pages.getContent();
         List<Article> articleList = new ArrayList<>();
         for(Comment comment : comments){
@@ -453,6 +465,31 @@ public class ArticleController {
             articleList.add(article);
         }
         return ResultUtils.ok(articleList);
+    }
+
+    /**
+     * 是否某用户点赞过某文章
+     * @param user_id 用户id
+     * @param article_id 文章id
+     * @return  true已点赞  false未点赞
+     */
+    @ApiOperation(value = "是否某用户点赞过某文章", notes = "是否某用户点赞过某文章接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "user_id", value = "用户ID", required = true ,dataType = "int"),
+            @ApiImplicitParam(name = "article_id", value = "文章ID", required = true ,dataType = "int")
+    })
+    @PostMapping("/isStarArticle")
+    public Result isStarArticle(@RequestParam int user_id, int article_id){
+        //获取我的点赞文章列表
+        List<Stars> stars = starsRepository.findAllByUser_id(user_id);
+        if(stars.size() > 0){
+            for(Stars s : stars){
+                if(s.getArticle_id() == article_id){
+                    return ResultUtils.ok(true);
+                }
+            }
+        }
+        return ResultUtils.ok(false);
     }
 
     /**

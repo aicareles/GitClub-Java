@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 public interface StarsRepository extends JpaRepository<Stars,Integer> {
 
     @Query("select u from Stars u where (u.user_id = :user_id) and (u.article_id = :article_id)")
@@ -19,6 +21,9 @@ public interface StarsRepository extends JpaRepository<Stars,Integer> {
 
     @Query("select u from Stars u where (u.user_id = :user_id) and (u.status = 1)")
     Page<Stars> findStarsByUser_id(@Param("user_id")int user_id, Pageable pageable);
+
+    @Query("select u from Stars u where (u.user_id = :user_id) and (u.status = 1)")
+    List<Stars> findAllByUser_id(@Param("user_id")int user_id);
 
     @Modifying
     @Transactional

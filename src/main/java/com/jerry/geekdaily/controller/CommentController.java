@@ -45,18 +45,20 @@ public class CommentController {
 
     /**
      * 获取文章评论列表
-     * @param page
-     * @param article_id
+     * @param page 当前页数
+     * @param size 返回数量
+     * @param article_id 文章ID
      * @return
      */
     @ApiOperation(value = "获取文章评论列表", notes = "获取文章评论列表接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "当前页数", required = true ,dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "返回数量", required = true ,dataType = "int"),
             @ApiImplicitParam(name = "article_id", value = "文章ID", required = true ,dataType = "int")
     })
     @Cacheable(value="getArticleComments")
     @PostMapping("/getArticleComments")
-    public Result<Comment> getArticleComments(@RequestParam("page")Integer page, @RequestParam("article_id")int article_id){
+    public Result<Comment> getArticleComments(@RequestParam("page")Integer page, @RequestParam("size")Integer size, @RequestParam("article_id")int article_id){
         Article article = articleRepository.findArticleByArticle_id(article_id);
         if(StringUtils.isEmpty(article)){
             return ResultUtils.error("未发现相关文章!");
