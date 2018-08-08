@@ -74,13 +74,13 @@ public class ArticleController {
      * 查看文章列表的web页面
      * @return
      */
-    @GetMapping(value = ("/index"))
-    public ModelAndView index(){
-        List<Article> articles = articleRepository.findAll(new Sort(Sort.Direction.DESC, "date"));
-        ModelAndView model = new ModelAndView("article_list");
-        model.addObject("articleList", articles);
-        return model;
-    }
+//    @GetMapping(value = ("/index"))
+//    public ModelAndView index(){
+//        List<Article> articles = articleRepository.findAll(new Sort(Sort.Direction.DESC, "date"));
+//        ModelAndView model = new ModelAndView("article_list");
+//        model.addObject("articleList", articles);
+//        return model;
+//    }
 
     /**
      * 小程序webview跳转

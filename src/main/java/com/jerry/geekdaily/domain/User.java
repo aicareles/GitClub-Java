@@ -36,6 +36,8 @@ public class User implements Serializable {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;
 
+    private int score;//个人积分
+
 //    //文章--点赞用户   多对多关系
 //    @ManyToMany(fetch= FetchType.EAGER)
 //    @JoinTable(name="UserArticle",joinColumns={@JoinColumn(name="user_id")},inverseJoinColumns={@JoinColumn(name="article_id")})
@@ -113,7 +115,15 @@ public class User implements Serializable {
         this.date = date;
     }
 
-//    @JsonBackReference
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    //    @JsonBackReference
 //    public List<Article> getArticleList() {
 //        return articleList;
 //    }

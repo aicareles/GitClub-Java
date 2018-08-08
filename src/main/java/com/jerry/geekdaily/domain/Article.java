@@ -46,6 +46,9 @@ public class Article implements Serializable {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;
 
+    @JSONField(serialize=false)
+    private int review_status;//审核状态  0代表审核审核中 1代表审核成功  -1代表审核失败
+
 //    //文章--点赞用户   多对多关系
 //    @ManyToMany(mappedBy = "articleList")
 //    private List<User> users;
@@ -166,7 +169,15 @@ public class Article implements Serializable {
         this.date = date;
     }
 
-//    @JsonBackReference
+    public int getReview_status() {
+        return review_status;
+    }
+
+    public void setReview_status(int review_status) {
+        this.review_status = review_status;
+    }
+
+    //    @JsonBackReference
 //    public List<User> getUsers() {
 //        return users;
 //    }
