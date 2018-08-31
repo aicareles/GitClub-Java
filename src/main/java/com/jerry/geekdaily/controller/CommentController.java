@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -93,6 +94,7 @@ public class CommentController {
             @ApiImplicitParam(name = "to_nick", value = "评论目标用户昵称", required = false, dataType = "string"),
             @ApiImplicitParam(name = "to_avatar", value = "评论目标用户头像", required = false, dataType = "string"),
     })
+    @CacheEvict(value="getArticleComments", allEntries=true)//将文章评论列表相关缓存清空
     @PostMapping("/commentArticle")
     public Result<Comment> commentArticle(@RequestParam("article_id")int article_id,
                                           @RequestParam("article_type")int article_type,

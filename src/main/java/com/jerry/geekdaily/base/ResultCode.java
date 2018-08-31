@@ -65,7 +65,12 @@ public enum ResultCode {
     /**
      * 未查询到相关信息
      */
-    NO_FIND_THINGS(1012, "未查询到相关信息");
+    NO_FIND_THINGS(1012, "未查询到相关信息"),
+
+    /**
+     * 没有修改文章权限
+     */
+    NO_EDIT_PERMITION(1014, "没有修改文章权限");
 
 
 

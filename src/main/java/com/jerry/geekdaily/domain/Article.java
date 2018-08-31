@@ -36,6 +36,8 @@ public class Article implements Serializable {
 
     private int stars;//点赞数
 
+    private int un_stars;//反赞数
+
     private int comments;//评论数
 
     private int views;//访问量
@@ -46,13 +48,11 @@ public class Article implements Serializable {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;
 
-    @JSONField(serialize=false)
     private int review_status;//审核状态  0代表审核审核中 1代表审核成功  -1代表审核失败
 
 //    //文章--点赞用户   多对多关系
 //    @ManyToMany(mappedBy = "articleList")
 //    private List<User> users;
-
 
     public Article() {
     }
@@ -137,6 +137,14 @@ public class Article implements Serializable {
         this.stars = stars;
     }
 
+    public int getUn_stars() {
+        return un_stars;
+    }
+
+    public void setUn_stars(int un_stars) {
+        this.un_stars = un_stars;
+    }
+
     public int getViews() {
         return views;
     }
@@ -198,6 +206,7 @@ public class Article implements Serializable {
                 ", contributor='" + contributor + '\'' +
                 ", contributor_id=" + contributor_id +
                 ", stars=" + stars +
+                ", un_stars=" + un_stars +
                 ", comments=" + comments +
                 ", views=" + views +
                 ", tag='" + tag + '\'' +

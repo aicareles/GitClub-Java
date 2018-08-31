@@ -47,7 +47,6 @@
                 <!--<button type="submit" class="btn btn-primary block full-width m-b">登 录</button>-->
                 <button type="button" class="btn btn-primary block full-width m-b" onclick="login()">登 录</button>
 
-
                 <p class="text-muted text-center"> <a href=""><small>忘记密码了？</small></a> | <a href="/geekdaily/register">注册一个新账号</a>
                 </p>
 
@@ -65,10 +64,11 @@
                 type: "POST",
                 url: "/geekdaily/login",
                 data: {"userName":userName,"password":password},
+                cache: false, //不缓存此页面
                 success: function(data){
                     //前端调用成功后，可以处理后端传回的json格式数据。
                     if(data.code == 0){
-                        console.log("成功："+data.msg);
+                        // console.log("成功："+data.msg);
                         //想跳转到某个html页面怎么写
                         window.location.href = "/geekdaily/index";
                     }else {

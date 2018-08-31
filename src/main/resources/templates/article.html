@@ -35,10 +35,10 @@
                             data-target="#bs-example-navbar-collapse-1" aria-expanded="false"><span
                             class="sr-only">切换导航</span> <span class="icon-bar"></span> <span class="icon-bar"></span>
                         <span class="icon-bar"></span></button>
-                    <a class="navbar-brand" href="/">YlsatCMS</a></div>
+                    <a class="navbar-brand" href="#">502</a></div>
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="">消息 <span class="badge">1</span></a></li>
+                        <li><a href="#">消息 <span class="badge">1</span></a></li>
                         <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" role="button"
                                                 aria-haspopup="true" aria-expanded="false">admin <span
                                 class="caret"></span></a>
@@ -47,7 +47,7 @@
                                 <li><a title="查看您的登录记录" data-toggle="modal" data-target="#seeUserLoginlog">登录记录</a></li>
                             </ul>
                         </li>
-                        <li><a href="login.html" onClick="if(!confirm('是否确认退出？'))return false;">退出登录</a></li>
+                        <li><a href="/geekdaily/logout" onClick="if(!confirm('是否确认退出？'))return false;">退出登录</a></li>
                         <li><a data-toggle="modal" data-target="#WeChat">帮助</a></li>
                     </ul>
                     <form action="" method="" class="navbar-form navbar-right" role="search">
@@ -55,7 +55,7 @@
                             <input type="text" class="form-control" autocomplete="off" placeholder="键入关键字搜索"
                                    maxlength="15">
                             <span class="input-group-btn">
-              <button class="btn btn-default" type="submit">搜索</button>
+              <button class="btn btn-default" type="button">搜索</button>
               </span></div>
                     </form>
                 </div>
@@ -68,15 +68,15 @@
                 <li><a href="/geekdaily/index">报告</a></li>
             </ul>
             <ul class="nav nav-sidebar">
-                <li class="active"><a href="/geekdaily/article">文章</a></li>
-                <li><a href="">公告</a></li>
-                <li><a href="">评论</a></li>
+                <li class="active"><a href="/geekdaily/webArticle">文章</a></li>
+                <li><a data-toggle="tooltip" data-placement="top" title="暂未开放该功能">公告</a></li>
+                <li><a data-toggle="tooltip" data-placement="top" title="暂未开放该功能">评论</a></li>
                 <li><a data-toggle="tooltip" data-placement="top" title="网站暂无留言功能">留言</a></li>
             </ul>
             <ul class="nav nav-sidebar">
-                <li><a href="">栏目</a></li>
-                <li><a class="dropdown-toggle" id="otherMenu" data-toggle="dropdown" aria-haspopup="true"
-                       aria-expanded="false">其他</a>
+                <li><a data-toggle="tooltip" data-placement="top" title="暂未开放该功能">栏目</a></li>
+                <li><a data-toggle="tooltip" data-placement="top" title="暂未开放该功能">其他</a>
+                <!--<li><a class="dropdown-toggle" id="otherMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">其他</a>-->
                     <ul class="dropdown-menu" aria-labelledby="otherMenu">
                         <li><a href="flink.html">友情链接</a></li>
                         <li><a href="loginlog.html">访问记录</a></li>
@@ -84,8 +84,8 @@
                 </li>
             </ul>
             <ul class="nav nav-sidebar">
-                <li><a class="dropdown-toggle" id="userMenu" data-toggle="dropdown" aria-haspopup="true"
-                       aria-expanded="false">用户</a>
+                <li><a data-toggle="tooltip" data-placement="top" title="暂未开放该功能">用户</a>
+                <!--<li><a class="dropdown-toggle" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">用户</a>-->
                     <ul class="dropdown-menu" aria-labelledby="userMenu">
                         <li><a href="#">管理用户组</a></li>
                         <li><a href="manage-user.html">管理用户</a></li>
@@ -93,8 +93,8 @@
                         <li><a href="loginlog.html">管理登录日志</a></li>
                     </ul>
                 </li>
-                <li><a class="dropdown-toggle" id="settingMenu" data-toggle="dropdown" aria-haspopup="true"
-                       aria-expanded="false">设置</a>
+                <li><a data-toggle="tooltip" data-placement="top" title="暂未开放该功能">设置</a>
+                <!--<li><a class="dropdown-toggle" id="settingMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">设置</a>-->
                     <ul class="dropdown-menu" aria-labelledby="settingMenu">
                         <li><a href="setting.html">基本设置</a></li>
                         <li><a href="readset.html">用户设置</a></li>
@@ -110,7 +110,7 @@
             <form action="/Article/checkAll" method="post">
                 <h1 class="page-header">操作</h1>
                 <ol class="breadcrumb">
-                    <li><a href="/geekdaily/addArticle">增加文章</a></li>
+                    <li><a href="/geekdaily/webAddArticle">增加文章</a></li>
                 </ol>
                 <h1 class="page-header">管理 </h1>  <!--<span class="badge">7</span>-->
                 <div class="table-responsive">
@@ -139,14 +139,15 @@
                         <tr id="articles" th:each="article : ${articleList}">
                             <td><input type="checkbox" class="input-control" name="checkbox[]" value=""/></td>
                             <td class="article-contributor" th:text="${article.contributor}"></td>
-                            <td class="article-title" th:text="${article.title}"></td>
-                            <td th:text="${article.des}"></td>
+                            <td style="max-width: 200px" th:text="${article.title}"></td>
+                            <td style="max-width: 200px" th:text="${article.des}"></td>
                             <td class="hidden-sm" th:text="${article.tag}"></td>
                             <td class="hidden-sm" th:text="${article.stars}"></td>
                             <td class="hidden-sm" th:text="${article.comments}"></td>
                             <td class="hidden-sm" th:text="${article.views}"></td>
                             <td th:text="${#dates.format(article.date, 'yyyy-MM-dd HH:mm:ss')}">2015-12-03</td>
-                            <td><a href="update-article.html">修改</a> <a rel="6">删除</a></td>
+                            <td><a th:id="${article.article_id}" th:onclick="'javascript:editArticle(\''+${article.article_id}+'\')'">修改</a>
+                                <a th:id="${article.article_id}" th:onclick="'javascript:deleteArticle(\''+${article.article_id}+'\')'">删除</a></td>
                         </tr>
                         </tbody>
                     </table>
@@ -159,7 +160,7 @@
                                                                                           onClick="noselect()">不选</a>
                             </div>
                             <div class="btn-group" role="group">
-                                <button type="submit" class="btn btn-default" data-toggle="tooltip"
+                                <button type="button" disabled="value" class="btn btn-default" data-toggle="tooltip"
                                         data-placement="bottom" title="删除全部选中" name="checkbox_delete">删除
                                 </button>
                             </div>
@@ -334,9 +335,11 @@
         <li class="list-group-item"><span>浏览器：</span>Chrome47</li>
     </ul>
 </div>
+<!--用于接收总页数-->
+<input id="pageCount" type="hidden" th:value="${pageCount}">
 <script src="js/bootstrap.min.js"></script>
 <script src="js/admin-scripts.js"></script>
-<script>
+<script type="text/javascript">
     // var defaults = {
     //     totalData: 0,			//数据总条数
     //     showData: 0,				//每页显示的条数
@@ -360,6 +363,7 @@
     // };
     $(function () {
         $("#p3").pagination({
+            pageCount: document.getElementById("pageCount").value,
             showData: 15,
             coping: true,
             homePage: '首页',
@@ -376,7 +380,7 @@
                     success: function (data) {
                         //前端调用成功后，可以处理后端传回的json格式数据。
                         if (data.code == 0) {
-                            console.log("成功：", data.data.length);
+                            console.log("成功：", data);
                             //刷新数据
                             getPageData(data.data);
                         } else {
@@ -389,29 +393,52 @@
                 })
             }
         });
-        //是否确认删除
-        $("#main table tbody tr td a").click(function () {
-            var name = $(this);
-            var id = name.attr("rel"); //对应id
-            if (event.srcElement.outerText == "删除") {
-                if (window.confirm("此操作不可逆，是否确认？")) {
-                    $.ajax({
-                        type: "POST",
-                        url: "/Article/delete",
-                        data: "id=" + id,
-                        cache: false, //不缓存此页面
-                        success: function (data) {
-                            window.location.reload();
-                        }
-                    });
-                }
-                ;
-            }
-            ;
-        });
+        // //是否确认删除
+        // $("#main table tbody tr td a").click(function () {
+        //     var article = $(this);
+        //     var article_id = article.attr("id"); //对应id
+        //     if (event.srcElement.outerText == "删除") {
+        //         if (window.confirm("此操作不可逆，是否确认？")) {
+        //             $.ajax({
+        //                 type: "GET",
+        //                 url: "/geekdaily/deleteArticle",
+        //                 data: {"article_id": article_id},
+        //                 cache: false, //不缓存此页面
+        //                 success: function (data) {
+        //                     window.location.reload();
+        //                 }
+        //             });
+        //         }
+        //         ;
+        //     } else if (event.srcElement.outerText == "修改") {
+        //         window.location.href = "/geekdaily/updateArticle?article_id=" + article_id;
+        //     }
+        //     ;
+        // });
     });
 </script>
 <script>
+    //是否确认删除
+    function deleteArticle(article_id){
+        // var article_id = $(article).attr("id");
+        if (window.confirm("此操作不可逆，是否确认？")) {
+            $.ajax({
+                type: "GET",
+                url: "/geekdaily/deleteArticle",
+                data: {"article_id": article_id},
+                cache: false, //不缓存此页面
+                success: function (data) {
+                    window.location.reload();
+                }
+            });
+        }
+    }
+
+    //修改编辑文章
+    function editArticle(article_id) {
+        // var article_id = $(article).attr("id");
+        window.location.href = "/geekdaily/webUpdateArticle?article_id="+article_id;
+    }
     //刷新数据
     function getPageData(json) {
         var tr = '';
@@ -419,14 +446,14 @@
             tr += '<tr>\
                                 <td><input type="checkbox" class="input-control" name="checkbox[]" value=""/></td>\
                         <td>' + n.contributor + '</td>\
-                        <td>' + n.title + '</td>\
-                        <td>' + n.des + '</td>\
+                        <td style="max-width: 200px">' + n.title + '</td>\
+                        <td style="max-width: 200px">' + n.des + '</td>\
                         <td>' + n.tag + '</td>\
                         <td>' + n.stars + '</td>\
                         <td>' + n.comments + '</td>\
                         <td>' + n.views + '</td>\
                         <td>' + dateFormat(n.date) + '</td>\
-                        <td><a href="update-article.html">修改</a> <a rel="6">删除</a></td>\
+                        <td><a id= "n.article_id" onclick="editArticle('+n.article_id+')">修改</a> <a id= "n.article_id" onclick="deleteArticle('+n.article_id+')">删除</a></td>\
                         </tr>'
             $('#tbody').html(tr)
         });

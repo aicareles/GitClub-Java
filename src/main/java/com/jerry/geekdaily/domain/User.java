@@ -14,6 +14,9 @@ public class User implements Serializable {
     @GeneratedValue
     private Integer user_id;
 
+    //是否是管理员
+    private Boolean is_admin;
+
     //微信的openid  唯一
     private String open_id;
 
@@ -49,6 +52,14 @@ public class User implements Serializable {
 
     public void setUser_id(Integer user_id) {
         this.user_id = user_id;
+    }
+
+    public Boolean isAdmin() {
+        return is_admin;
+    }
+
+    public void setIs_admin(Boolean is_admin) {
+        this.is_admin = is_admin;
     }
 
     public String getOpen_id() {
@@ -132,11 +143,11 @@ public class User implements Serializable {
 //        this.articleList = articleList;
 //    }
 
-
     @Override
     public String toString() {
         return "User{" +
                 "user_id=" + user_id +
+                ", is_admin=" + is_admin +
                 ", open_id='" + open_id + '\'' +
                 ", session_key='" + session_key + '\'' +
                 ", nick_name='" + nick_name + '\'' +
@@ -145,6 +156,7 @@ public class User implements Serializable {
                 ", gender='" + gender + '\'' +
                 ", city='" + city + '\'' +
                 ", date=" + date +
+                ", score=" + score +
                 '}';
     }
 }

@@ -105,13 +105,13 @@ public class ArticleController {
     @ApiOperation(value = "上传文章", notes = "上传文章接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "title", value = "文章标题", required = true ,dataType = "string"),
-            @ApiImplicitParam(name = "des", value = "文章描述", required = true, dataType = "string"),
+            @ApiImplicitParam(name = "des", value = "文章描述", required = false, dataType = "string"),
             @ApiImplicitParam(name = "tag", value = "文章标签", required = true ,dataType = "string"),
             @ApiImplicitParam(name = "contributor", value = "贡献者", required = false ,dataType = "string"),
             @ApiImplicitParam(name = "contributor_id", value = "贡献者ID", required = false ,dataType = "int"),
             @ApiImplicitParam(name = "link", value = "文章链接", required = true ,dataType = "string"),
             @ApiImplicitParam(name = "md_content", value = "MD风格文本", required = true ,dataType = "string"),
-            @ApiImplicitParam(name = "article_img", value = "文章大图", required = true ,dataType = "file")
+            @ApiImplicitParam(name = "article_img", value = "文章大图", required = false ,dataType = "file")
     })
     @CacheEvict(value="ArticleController", allEntries=true)//上传添加文章，将文章相关缓存清空
     @PostMapping("/uploadArticle")
@@ -123,19 +123,14 @@ public class ArticleController {
                                 @RequestParam(value = "link") String link,
                                 @RequestParam(value = "md_content")String md_content,
                                 @RequestParam("article_img") MultipartFile file) {
-        if(StringUtils.isEmpty(title) || StringUtils.isEmpty(des) || StringUtils.isEmpty(tag)
-                || StringUtils.isEmpty(link) || StringUtils.isEmpty(file)){
+        if(StringUtils.isEmpty(title) || StringUtils.isEmpty(tag) || StringUtils.isEmpty(md_content)
+                || StringUtils.isEmpty(link)){
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
-        }
-        String fileName = uploadImg(file);
-        if(StringUtils.isEmpty(fileName)){
-            return ResultUtils.error("上传图片失败");
         }
         Article article = new Article();
         article.setTitle(title);
         article.setDes(des);
         article.setTag(tag);
-        article.setImg_url(FILE_FOLDER+fileName);
         article.setContributor(contributor);
         article.setContributor_id(contributor_id);
         article.setLink(link);
@@ -143,6 +138,15 @@ public class ArticleController {
         String wrap_link = LinkUtils.gererateShortUrl(link);
         article.setWrap_link(wrap_link);
         article.setDate(new Date());
+        String fileName = uploadImg(file);
+        if(!StringUtils.isEmpty(fileName)){
+            article.setImg_url(FILE_FOLDER+fileName);
+        }
+        //判断是否为管理员   若为管理员则直接通过审核
+        User user = userRepository.findUserByUser_id(contributor_id);
+        if(null != user){
+            article.setReview_status(user.isAdmin() ? 1 : 0);
+        }
         articleRepository.save(article);
         logger.info("提交成功!");
         //插入数据到引擎
@@ -152,6 +156,8 @@ public class ArticleController {
 
     /**
      * 文章编辑更新
+     * @param article_id 文章ID
+     * @param editor_uid 编辑者ID
      * @param title 标题
      * @param des 描述
      * @param tag 文章标签
@@ -161,6 +167,7 @@ public class ArticleController {
     @ApiOperation(value = "文章编辑更新", notes = "文章编辑更新接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "article_id", value = "文章ID", required = true ,dataType = "int"),
+            @ApiImplicitParam(name = "editor_uid", value = "编辑者ID", required = true ,dataType = "int"),
             @ApiImplicitParam(name = "title", value = "文章标题", required = false ,dataType = "string"),
             @ApiImplicitParam(name = "des", value = "文章描述", required = false, dataType = "string"),
             @ApiImplicitParam(name = "tag", value = "文章标签", required = false ,dataType = "string"),
@@ -171,13 +178,14 @@ public class ArticleController {
     @CacheEvict(value="ArticleController", allEntries=true)//更新文章，将文章相关缓存清空
     @PostMapping("/updateArticle")
     public Result<Article> uploadArticle(@RequestParam(value = "article_id") int article_id,
+                                         @RequestParam(value = "editor_uid") int editor_uid,
                                          @RequestParam(value = "title") String title,
                                          @RequestParam(value = "des") String des,
                                          @RequestParam(value = "tag") String tag,
                                          @RequestParam(value = "link") String link,
                                          @RequestParam(value = "md_content")String md_content,
                                          @RequestParam("article_img") MultipartFile file) {
-        if(StringUtils.isEmpty(article_id)){
+        if(StringUtils.isEmpty(article_id) || StringUtils.isEmpty(editor_uid)){
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
         }
         //先查询该文章
@@ -185,11 +193,16 @@ public class ArticleController {
         if(StringUtils.isEmpty(article)){
             return ResultUtils.error("未找到相应文章");
         }
-        if(!file.isEmpty()){
-            String fileName = uploadImg(file);
-            if(StringUtils.isEmpty(fileName)){
-                return ResultUtils.error("上传图片失败");
+        //判断是否为管理员   若为管理员则直接通过审核
+        User user = userRepository.findUserByUser_id(editor_uid);
+        if(null != user){
+            if(!user.isAdmin() && editor_uid != article.getContributor_id()){
+                return ResultUtils.error(ResultCode.UNAUTHORIZED.NO_EDIT_PERMITION);
             }
+            article.setReview_status(user.isAdmin() ? 1 : 0);
+        }
+        String fileName = uploadImg(file);
+        if(!StringUtils.isEmpty(fileName)){
             article.setImg_url(FILE_FOLDER+fileName);
         }
         if(!StringUtils.isEmpty(title)){
@@ -222,6 +235,7 @@ public class ArticleController {
      */
     private String uploadImg(MultipartFile file) {
         String dateName = null;
+        if(file == null || file.isEmpty() || file.getSize() == 0)return dateName;
         //文章大图文件上传
         try {
             File path = null;
@@ -314,6 +328,7 @@ public class ArticleController {
             @ApiImplicitParam(name = "type", value = "点赞类型", required = true ,dataType = "int"),
             @ApiImplicitParam(name = "status", value = "点赞状态", required = true ,dataType = "int")
     })
+    @CacheEvict(value="ArticleController", allEntries=true)//将文章相关缓存清空
     @PostMapping("/articleStar")
     public Result<Stars> articleStar(@RequestParam("article_id")int article_id, @RequestParam("user_id")int user_id,
                                      @RequestParam("type")int type, @RequestParam("status")int status){

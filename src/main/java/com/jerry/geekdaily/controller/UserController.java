@@ -5,9 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.jerry.geekdaily.base.Result;
 import com.jerry.geekdaily.base.ResultCode;
 import com.jerry.geekdaily.base.ResultUtils;
-import com.jerry.geekdaily.domain.RawData;
 import com.jerry.geekdaily.domain.User;
 import com.jerry.geekdaily.repository.UserRepository;
+import com.jerry.geekdaily.util.CookieUtils;
 import com.jerry.geekdaily.util.HttpUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -18,7 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,12 +84,13 @@ public class UserController {
             @ApiImplicitParam(name = "password", value = "密码", required = true ,dataType = "string"),
     })
     @PostMapping(value = "/login")
-    public Result<User> login(@RequestParam("userName")String userName, @RequestParam("password")String password){//HttpServletRequest request,
+    public Result<User> login(@RequestParam("userName")String userName, @RequestParam("password")String password,
+                              HttpServletRequest request, HttpServletResponse response){
         if(!StringUtils.isEmpty(userName) && !StringUtils.isEmpty(password)){
             User user = userRepository.findUserByNick_nameAndPwd(userName, password);
-            System.out.println("userName:"+userName);
             if(user != null){
-//                request.getSession().setAttribute("user",user);
+                //保存到cookie中
+                CookieUtils.addCookie(user.getUser_id()+"", user.getNick_name(), response, request);
                 return ResultUtils.ok(user);
             }else {
                 return ResultUtils.error("用户名或密码错误!");
@@ -95,99 +98,6 @@ public class UserController {
         }else {
             return ResultUtils.error("用户名或密码不能为空!");
         }
-    }
-
-    /**
-     * 小程序登陆(注册)
-     * @param code 小程序临时登录凭证code
-     * @param nickName 用户昵称
-     * @param avatarUrl 用户头像
-     * @return 登陆成功的用户对象
-     */
-    @ApiOperation(value = "微信用户登陆", notes = "微信用户登陆接口")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "code", value = "小程序临时登录凭证code", required = true ,dataType = "string"),
-            @ApiImplicitParam(name = "nickName", value = "用户昵称", required = true ,dataType = "string"),
-            @ApiImplicitParam(name = "avatarUrl", value = "用户头像", required = false ,dataType = "string")
-//            @ApiImplicitParam(name = "rawData", value = "用户非敏感信息", required = true ,dataType = "string")
-    })
-    @PostMapping(value = "/WxLogin")
-    public Result<User> WxLogin(@RequestParam("code")String code,
-                                @RequestParam("nickName")String nickName,
-                                @RequestParam("avatarUrl")String avatarUrl){//HttpServletRequest request,
-        String openid = null;
-        String sessionKey = null;
-//        RawData data = null;
-        if(!StringUtils.isEmpty(code) && !StringUtils.isEmpty(nickName)){
-//            data = JSON.parseObject(rawData, RawData.class);
-//            logger.info("data:"+rawData);
-            JSONObject jsonObject = getSessionKeyOrOpenId(code);
-            if(!StringUtils.isEmpty(jsonObject) && StringUtils.isEmpty(jsonObject.getString("errmsg"))){
-                openid = jsonObject.getString("openid");
-                sessionKey = jsonObject.getString("session_key");
-                User user = userRepository.findUserByOpen_id(openid);
-                if (!StringUtils.isEmpty(user)){
-                    //已存在用户
-                    return ResultUtils.ok(user);
-                }else {
-                    //不存在   则插入用户
-                    user = new User();
-                    user.setNick_name(nickName);
-                    user.setAvatar(avatarUrl);
-//                    user.setCity(data.getCity());
-//                    user.setGender(data.getGender());
-                    user.setOpen_id(openid);
-                    user.setSession_key(sessionKey);
-                    user.setDate(new Date());
-                    user = userRepository.save(user);
-                    return ResultUtils.ok(user);
-                }
-            }else {
-                return ResultUtils.error("invalid code!");
-            }
-        }else {
-            return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
-        }
-    }
-
-    /**
-     * 小程序端获取SessionKeyOrOpenId
-     * @param code
-     * @return
-     */
-    public static JSONObject getSessionKeyOrOpenId(String code){
-        //微信端登录code
-        String wxCode = code;
-        String requestUrl = "https://api.weixin.qq.com/sns/jscode2session";
-        Map<String,String> requestUrlParam = new HashMap<String, String>(  );
-        requestUrlParam.put( "appid","wx5cd48edea47a1f48" );//小程序appId
-        requestUrlParam.put( "secret","b5b627c95cd043681857c6c7d1e3a488" );
-        requestUrlParam.put( "js_code",wxCode );//小程序端返回的code
-        requestUrlParam.put( "grant_type","authorization_code" );//默认参数
-
-        //发送post请求读取调用微信接口获取openid用户唯一标识
-        JSONObject jsonObject = JSON.parseObject( HttpUtils.sendPost( requestUrl,requestUrlParam ));
-        return jsonObject;
-    }
-
-    /**
-     * 登陆
-     * @return
-     */
-    @GetMapping(value = {"/", "/login"})
-    public ModelAndView index(){
-        ModelAndView model = new ModelAndView("login");
-        return model;
-    }
-
-    /**
-     * 注册
-     * @return
-     */
-    @GetMapping(value = ("/register"))
-    public ModelAndView register(){
-        ModelAndView model = new ModelAndView("register");
-        return model;
     }
 
 }

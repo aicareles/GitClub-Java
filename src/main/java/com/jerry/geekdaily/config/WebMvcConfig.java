@@ -1,5 +1,6 @@
 package com.jerry.geekdaily.config;
 
+import com.jerry.geekdaily.interceptor.LoginInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +35,31 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     }
 
 
-//    @Autowired
-//    LoginInterceptor loginInterceptor;
+    @Autowired
+    LoginInterceptor loginInterceptor;
 
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry) {
-//        // 日志拦截器
-//        //registry.addInterceptor(logInterceptor).addPathPatterns("/**");
-//        // 登录拦截器
-//        LoginInterceptor loginInterceptor = new LoginInterceptor();
-//        registry.addInterceptor(loginInterceptor).addPathPatterns("/**")
-//                // 排除路径
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        // 日志拦截器
+        //registry.addInterceptor(logInterceptor).addPathPatterns("/**");
+        // 登录拦截器
+        registry.addInterceptor(loginInterceptor)
+//                .addPathPatterns("/**")
+                .addPathPatterns("/")
+                .addPathPatterns("/index")
+                .addPathPatterns("/webArticle")
+                .addPathPatterns("/webAddArticle")
+                .addPathPatterns("/webUpdateArticle");
+                // 排除路径
 //                .excludePathPatterns("/login")
+//                .excludePathPatterns("/register")
 //                // 排除资源请求
-//                .excludePathPatterns("/css/*.css");
-//    }
+//                .excludePathPatterns("/static/**")
+//                .excludePathPatterns("/**/images/**")
+//                .excludePathPatterns("/**/*.css")
+//                .excludePathPatterns("/**/fonts/**")
+//                .excludePathPatterns("/**/*.js");
+    }
 
 //    @Override
 //    public void addViewControllers(ViewControllerRegistry registry) {
@@ -57,6 +68,15 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 //        registry.addViewController("toLogin").setViewName("login");
 //        logger.info("addViewControllers++++");
 //        super.addViewControllers(registry);
+//    }
+
+//    // 设置跨域访问
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/**").allowedHeaders("*")
+//                .allowedMethods("*")
+//                .allowedOrigins("*")
+//                .allowCredentials(true);
 //    }
 
 }
