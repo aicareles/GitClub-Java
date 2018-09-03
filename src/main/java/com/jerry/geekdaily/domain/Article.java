@@ -19,7 +19,9 @@ public class Article implements Serializable {
 
     private String des;
 
-    private String img_url;//头像
+    private String img_url;//上传的图片文件
+
+    private String img_link;//上传的图片网络地址
 
     private String link;//源url
 
@@ -43,6 +45,10 @@ public class Article implements Serializable {
     private int views;//访问量
 
     private String tag;//文章标签
+
+    private String category;//文章分类（Android、iOS、Java等）
+
+    private int rank;//文章适合等级（0所有人、1初学、2进阶）
 
     //文章上传更新日期
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
@@ -87,6 +93,14 @@ public class Article implements Serializable {
 
     public void setImg_url(String img_url) {
         this.img_url = img_url;
+    }
+
+    public String getImg_link() {
+        return img_link;
+    }
+
+    public void setImg_link(String img_link) {
+        this.img_link = img_link;
     }
 
     public String getLink() {
@@ -167,6 +181,22 @@ public class Article implements Serializable {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
     }
 
     public Date getDate() {

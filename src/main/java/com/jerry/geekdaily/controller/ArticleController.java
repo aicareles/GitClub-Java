@@ -106,25 +106,31 @@ public class ArticleController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "title", value = "文章标题", required = true ,dataType = "string"),
             @ApiImplicitParam(name = "des", value = "文章描述", required = false, dataType = "string"),
-            @ApiImplicitParam(name = "tag", value = "文章标签", required = true ,dataType = "string"),
-            @ApiImplicitParam(name = "contributor", value = "贡献者", required = false ,dataType = "string"),
-            @ApiImplicitParam(name = "contributor_id", value = "贡献者ID", required = false ,dataType = "int"),
+            @ApiImplicitParam(name = "tag", value = "文章标签", required = false ,dataType = "string"),
+            @ApiImplicitParam(name = "contributor", value = "贡献者", required = true ,dataType = "string"),
+            @ApiImplicitParam(name = "contributor_id", value = "贡献者ID", required = true ,dataType = "int"),
             @ApiImplicitParam(name = "link", value = "文章链接", required = true ,dataType = "string"),
-            @ApiImplicitParam(name = "md_content", value = "MD风格文本", required = true ,dataType = "string"),
-            @ApiImplicitParam(name = "article_img", value = "文章大图", required = false ,dataType = "file")
+            @ApiImplicitParam(name = "category", value = "文章分类", required = true ,dataType = "string"),
+            @ApiImplicitParam(name = "rank", value = "文章等级", required = true ,dataType = "int"),
+            @ApiImplicitParam(name = "md_content", value = "MD风格文本", required = false ,dataType = "string"),
+            @ApiImplicitParam(name = "article_img", value = "上传文章大图", required = false ,dataType = "file"),
+            @ApiImplicitParam(name = "img_link", value = "网络图片链接", required = false ,dataType = "String")
     })
     @CacheEvict(value="ArticleController", allEntries=true)//上传添加文章，将文章相关缓存清空
     @PostMapping("/uploadArticle")
     public Result<Article> uploadArticle(@RequestParam(value = "title") String title,
                                 @RequestParam(value = "des") String des,
-                                @RequestParam(value = "tag") String tag,
+                                @RequestParam(value = "tag", required = false) String tag,
                                 @RequestParam(value = "contributor") String contributor,
                                 @RequestParam(value = "contributor_id") int contributor_id,
                                 @RequestParam(value = "link") String link,
-                                @RequestParam(value = "md_content")String md_content,
-                                @RequestParam("article_img") MultipartFile file) {
-        if(StringUtils.isEmpty(title) || StringUtils.isEmpty(tag) || StringUtils.isEmpty(md_content)
-                || StringUtils.isEmpty(link)){
+                                @RequestParam(value = "category") String category,
+                                @RequestParam(value = "rank") int rank,
+                                @RequestParam(value = "md_content", required = false)String md_content,
+                                @RequestParam(value = "article_img", required = false) MultipartFile file,
+                                @RequestParam(value = "img_link", required = false) String img_link) {
+        if(StringUtils.isEmpty(title) || StringUtils.isEmpty(contributor) || StringUtils.isEmpty(contributor_id)
+                || StringUtils.isEmpty(link) || StringUtils.isEmpty(category) || StringUtils.isEmpty(rank)){
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
         }
         Article article = new Article();
@@ -134,6 +140,8 @@ public class ArticleController {
         article.setContributor(contributor);
         article.setContributor_id(contributor_id);
         article.setLink(link);
+        article.setCategory(category);
+        article.setRank(rank);
         article.setMd_content(md_content);
         String wrap_link = LinkUtils.gererateShortUrl(link);
         article.setWrap_link(wrap_link);
@@ -142,6 +150,7 @@ public class ArticleController {
         if(!StringUtils.isEmpty(fileName)){
             article.setImg_url(FILE_FOLDER+fileName);
         }
+        article.setImg_link(img_link);
         //判断是否为管理员   若为管理员则直接通过审核
         User user = userRepository.findUserByUser_id(contributor_id);
         if(null != user){

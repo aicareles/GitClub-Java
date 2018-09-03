@@ -19,6 +19,8 @@ public class ESArticle implements Serializable {
 
     private String img_url;//头像
 
+    private String img_link;//上传的图片网络地址
+
     private String link;//源url
 
     //此字段不返回
@@ -34,15 +36,23 @@ public class ESArticle implements Serializable {
 
     private int stars;//点赞数
 
+    private int un_stars;//反赞数
+
     private int comments;//评论数
 
     private int views;//访问量
 
     private String tag;//文章标签
 
+    private String category;//文章分类（Android、iOS、Java等）
+
+    private int rank;//文章适合等级（0所有人、1初学、2进阶）
+
     //文章上传更新日期
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;
+
+    private int review_status;//审核状态  0代表审核审核中 1代表审核成功  -1代表审核失败
 
     public ESArticle() {
     }
@@ -173,6 +183,46 @@ public class ESArticle implements Serializable {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String getImg_link() {
+        return img_link;
+    }
+
+    public void setImg_link(String img_link) {
+        this.img_link = img_link;
+    }
+
+    public int getUn_stars() {
+        return un_stars;
+    }
+
+    public void setUn_stars(int un_stars) {
+        this.un_stars = un_stars;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    public int getReview_status() {
+        return review_status;
+    }
+
+    public void setReview_status(int review_status) {
+        this.review_status = review_status;
     }
 
     @Override
