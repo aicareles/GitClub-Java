@@ -19,8 +19,6 @@ public class ESArticle implements Serializable {
 
     private String img_url;//头像
 
-    private String img_link;//上传的图片网络地址
-
     private String link;//源url
 
     //此字段不返回
@@ -52,7 +50,7 @@ public class ESArticle implements Serializable {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;
 
-    private int review_status;//审核状态  0代表审核审核中 1代表审核成功  -1代表审核失败
+    private User user;// 用户表外键
 
     public ESArticle() {
     }
@@ -70,7 +68,10 @@ public class ESArticle implements Serializable {
         this.comments = article.getComments();
         this.views = article.getViews();
         this.tag = article.getTag();
+        this.category = article.getCategory();
+        this.rank = article.getRank();
         this.date = article.getDate();
+        this.user = article.getUser();
     }
 
     public Integer getId() {
@@ -185,14 +186,6 @@ public class ESArticle implements Serializable {
         this.date = date;
     }
 
-    public String getImg_link() {
-        return img_link;
-    }
-
-    public void setImg_link(String img_link) {
-        this.img_link = img_link;
-    }
-
     public int getUn_stars() {
         return un_stars;
     }
@@ -217,12 +210,12 @@ public class ESArticle implements Serializable {
         this.rank = rank;
     }
 
-    public int getReview_status() {
-        return review_status;
+    public User getUser() {
+        return user;
     }
 
-    public void setReview_status(int review_status) {
-        this.review_status = review_status;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

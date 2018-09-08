@@ -69,7 +69,7 @@ public class ESController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "当前页数", required = true ,dataType = "int"),
             @ApiImplicitParam(name = "size", value = "返回的文章数量", required = true ,dataType = "int"),
-            @ApiImplicitParam(name = "query", value = "关键字---标签、标题、描述、贡献者", required = true ,dataType = "string")
+            @ApiImplicitParam(name = "query", value = "关键字---标题、描述", required = true ,dataType = "string")
     })
     @RequestMapping("/query")
     public Result<ESArticle> query(@RequestParam Integer page, @RequestParam Integer size, @RequestParam String query) {
@@ -79,10 +79,8 @@ public class ESController {
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
         queryBuilder.must()
                 .add(QueryBuilders.boolQuery()
-                .should(QueryBuilders.matchQuery("tag", query))
                 .should(QueryBuilders.matchQuery("title", query))
-                .should(QueryBuilders.matchQuery("des", query))
-                .should(QueryBuilders.matchQuery("contributor", query)));
+                .should(QueryBuilders.matchQuery("des", query)));
 
 //        queryBuilder.must(QueryBuilders.matchQuery("title", query));
 //                .must(QueryBuilders.matchQuery("des", query))
@@ -103,6 +101,7 @@ public class ESController {
         return ResultUtils.ok(searchPageResults.getContent());
 
     }
+
 
 
 

@@ -2,10 +2,13 @@ package com.jerry.geekdaily.domain;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 public class User implements Serializable {
@@ -14,8 +17,8 @@ public class User implements Serializable {
     @GeneratedValue
     private Integer user_id;
 
-    //是否是管理员
-    private Boolean is_admin;
+    //管理员状态   0普通用户  1管理员
+    private int admin_status;
 
     //微信的openid  唯一
     private String open_id;
@@ -54,12 +57,12 @@ public class User implements Serializable {
         this.user_id = user_id;
     }
 
-    public Boolean isAdmin() {
-        return is_admin;
+    public int getAdmin_status() {
+        return admin_status;
     }
 
-    public void setIs_admin(Boolean is_admin) {
-        this.is_admin = is_admin;
+    public void setAdmin_status(int admin_status) {
+        this.admin_status = admin_status;
     }
 
     public String getOpen_id() {
@@ -147,7 +150,7 @@ public class User implements Serializable {
     public String toString() {
         return "User{" +
                 "user_id=" + user_id +
-                ", is_admin=" + is_admin +
+                ", admin_status=" + admin_status +
                 ", open_id='" + open_id + '\'' +
                 ", session_key='" + session_key + '\'' +
                 ", nick_name='" + nick_name + '\'' +

@@ -106,8 +106,7 @@
         </aside>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-lg-10 col-md-offset-2 main" id="main">
             <div class="row">
-                <form action="/geekdaily/uploadArticle" method="post" class="add-article-form"
-                      enctype="multipart/form-data" accept-charset="UTF-8">
+                <form method="post" class="add-article-form" accept-charset="UTF-8">
                     <div class="col-md-9">
                         <h1 class="page-header">撰写新文章</h1>
                         <div class="form-group">
@@ -115,30 +114,31 @@
                             <input type="text" id="title" name="title" class="form-control" placeholder="在此处输入标题"
                                    required autofocus autocomplete="off">
                         </div>
-                        <div class="form-group">
-                            <label for="article-content" class="sr-only">内容</label>
-                            <script id="article-content" name="content" type="text/plain"></script>
-                        </div>
-                        <div class="add-article-box">
-                            <h2 class="add-article-box-title"><span>标签</span></h2>
-                            <div class="add-article-box-content">
-                                <input type="text" class="form-control" placeholder="请输入关键字" id="tag" name="tag"
-                                       required autocomplete="off">
-                                <span class="prompt-text">多个标签请用、隔开。</span>
-                            </div>
-                        </div>
-                        <div>
-                            <input type="hidden" id="contributor" name="contributor" placeholder="如：老蔡"/>
-                        </div>
-                        <div>
-                            <input type="hidden" id="contributor_id" name="contributor_id" placeholder="如：3"/>
-                        </div>
                         <div class="add-article-box">
                             <h2 class="add-article-box-title"><span>描述</span></h2>
                             <div class="add-article-box-content">
                                 <textarea class="form-control" id="des" name="des" autocomplete="off"></textarea>
                                 <span class="prompt-text">描述是可选的手工创建的内容总结，并可以在网页描述中使用</span>
                             </div>
+                        </div>
+                        <div class="add-article-box">
+                            <h2 class="add-article-box-title"><span>分类</span></h2>
+                            <div class="add-article-box-content">
+                                <input type="text" class="form-control" placeholder="请输入分类" id="category" name="category"
+                                       required autocomplete="off">
+                                <span class="prompt-text">如Android、Java等。</span>
+                            </div>
+                        </div>
+                        <div class="add-article-box">
+                            <h2 class="add-article-box-title"><span>适合等级</span></h2>
+                            <div class="add-article-box-content">
+                                <input id="r1" type="radio" value="0" name="rank" checked="checked">所有人</input>
+                                <input id="r2" type="radio" value="1" name="rank">初学</input>
+                                <input id="r3" type="radio" value="2" name="rank">进阶</input>
+                            </div>
+                        </div>
+                        <div>
+                            <input type="hidden" id="contributor_id" name="contributor_id" placeholder="如：3"/>
                         </div>
                         <div class="add-article-box">
                             <h2 class="add-article-box-title"><span>文章链接</span></h2>
@@ -149,27 +149,25 @@
                             </div>
                         </div>
 
-                        <div class="add-article-box">
-                            <h2 class="add-article-box-title"><span>MD文本</span></h2>
-                            <div class="add-article-box-content">
-                                <textarea style="height: 200px" class="form-control" id="md_content" name="md_content"
-                                          required autocomplete="off"></textarea>
-                                <span class="prompt-text">MD文本是md风格的排版规则，请先把文章内容转成MD风格的文本</span>
-                            </div>
-                        </div>
+                        <!--<div class="add-article-box" style="display: none">-->
+                            <!--<h2 class="add-article-box-title"><span>MD文本</span></h2>-->
+                            <!--<div class="add-article-box-content">-->
+                                <!--<textarea style="height: 200px" class="form-control" id="md_content" name="md_content"-->
+                                          <!--required autocomplete="off"></textarea>-->
+                                <!--<span class="prompt-text">MD文本是md风格的排版规则，请先把文章内容转成MD风格的文本</span>-->
+                            <!--</div>-->
+                        <!--</div>-->
                     </div>
                     <div class="col-md-3">
                         <h1 class="page-header">操作</h1>
                         <div class="add-article-box">
                             <h2 class="add-article-box-title"><span>标题图片</span></h2>
                             <div class="add-article-box-content">
-                                <!--<input type="text" class="form-control" placeholder="点击按钮选择图片" id="article_img" name="article_img" autocomplete="off">-->
-                                <input type="file" class="form-control" placeholder="点击按钮选择图片" id="article_img" accept="image/*"
-                                       name="article_img" autocomplete="off">
+                                <!--<input type="file" class="form-control" placeholder="点击按钮选择图片" id="article_img" accept="image/*"-->
+                                       <!--name="article_img" autocomplete="off">-->
+                                <input type="text" class="form-control" placeholder="请输入文章图片链接" id="article_img" name="article_img"
+                                       required autocomplete="off" onchange="isValidURL(this.value)">
                             </div>
-                            <!--<div class="add-article-box-footer">-->
-                            <!--<button class="btn btn-default" type="button" ID="upImage">选择</button>-->
-                            <!--</div>-->
                         </div>
                         <div class="add-article-box">
                             <h2 class="add-article-box-title"><span>发布</span></h2>
@@ -184,7 +182,7 @@
                                 </p>
                             </div>
                             <div class="add-article-box-footer">
-                                <button class="btn btn-primary" type="submit" name="submit">发布</button>
+                                <button class="btn btn-primary" type="button" name="submit" onclick="uploadArticle()">发布</button>
                             </div>
                         </div>
                     </div>
@@ -359,14 +357,50 @@
 // }
 
 window.onload = function () {
-    var contributor = document.getElementById("contributor");
     var contributor_id = document.getElementById("contributor_id");
-    //从cookie中取出 contributor和contributor_id的值
+    //从cookie中取出 contributor_id的值
     var userId = getCookie("geek_userId");
-    var userName = getCookie("geek_userName");
-    contributor.value = userName;
     contributor_id.value = parseInt(userId);
 };
+
+//上传文章
+function uploadArticle() {
+    var title = document.getElementById("title").value;
+    var des = document.getElementById("des").value;
+    var userId = getCookie("geek_userId");
+    var contributor_id = parseInt(userId);
+    var category = document.getElementById("category").value;
+    var rank = parseInt($("input[name='rank']:checked").val());
+    var link = document.getElementById("link").value;
+    var article_img = document.getElementById("article_img").value;
+    $.ajax({
+        type: "POST",
+        url: "/geekdaily/uploadArticle",
+        data: {
+            "title":title,
+            "des":des,
+            "contributor_id":contributor_id,
+            "category":category,
+            "rank":rank,
+            "link":link,
+            "article_img":article_img
+        },
+        cache: false, //不缓存此页面
+        success: function(data){
+            //前端调用成功后，可以处理后端传回的json格式数据。
+            if(data.code == 0){
+                // console.log("成功："+data.msg);
+                //想跳转到某个html页面怎么写
+                window.location.href = "/geekdaily/webArticle";
+            }else {
+                window.alert(data.msg);
+            }
+        },
+        error:function (data) {
+            window.alert("出错了!");
+        }
+    })
+}
 
 // var _uploadEditor;
 // $(function () {
@@ -426,16 +460,6 @@ function getCookie(name) {
         return unescape(arr[2]);
     else
         return null;
-    // var strcookie = document.cookie;//获取cookie字符串
-    // var arrcookie = strcookie.split("; ");//分割
-    // //遍历匹配
-    // for ( var i = 0; i < arrcookie.length; i++) {
-    //     var arr = arrcookie[i].split("=");
-    //     if (arr[0] == name){
-    //         return arr[1];
-    //     }
-    // }
-    // return "";
 }
 </script>
 </body>

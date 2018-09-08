@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -20,60 +22,69 @@ public class HomeController {
 
     @Autowired
     private ArticleRepository articleRepository;
+
     /**
      * 查看主页的web页面
+     *
      * @return
      */
     @GetMapping(value = {"/", "/index"})
-    public String index(){
+    public String index() {
         return "index";
     }
 
     /**
      * 登陆
+     *
      * @return
      */
     @GetMapping(value = ("/login"))
-    public String login(){
+    public String login() {
         return "login";
     }
 
     /**
      * 注册
+     *
      * @return
      */
     @GetMapping(value = ("/register"))
-    public String register(){
+    public String register() {
         return "register";
     }
 
     //退出登录
     @GetMapping(value = ("/logout"))
-    public String logout(HttpServletRequest request, HttpServletResponse response){
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
         //清空cookies
         CookieUtils.removeCookie(response, request);
         return "login";
     }
 
     @GetMapping(value = ("/webArticle"))
-    public ModelAndView article(){
-        Page<Article> pages = articleRepository.findAll(PageRequest.of(0,15, new Sort(Sort.Direction.DESC, "date")));
+    public ModelAndView article(HttpServletRequest request) {
+        int page = 0;
+        if(request.getParameter("page") != null){
+            page = Integer.parseInt(request.getParameter("page"));
+        }
+        Page<Article> pages = articleRepository.findAll(PageRequest.of(page, 15, new Sort(Sort.Direction.DESC, "date")));
         ModelAndView view = new ModelAndView("article");
         view.addObject("articleList", pages.getContent());
         view.addObject("pageCount", pages.getTotalPages());
+        view.addObject("page", page+1);
         return view;
     }
 
     @GetMapping(value = ("/webAddArticle"))
-    public String addArticle(){
+    public String addArticle() {
         return "add-article";
     }
 
     @GetMapping(value = ("/webUpdateArticle"))
-    public ModelAndView updateArticle(@RequestParam int article_id){
+    public ModelAndView updateArticle(@RequestParam int article_id) {
         Article article = articleRepository.findArticleByArticle_id(article_id);
         ModelAndView view = new ModelAndView("update-article");
-        view.addObject("article",article);
+        view.addObject("article", article);
         return view;
     }
 }

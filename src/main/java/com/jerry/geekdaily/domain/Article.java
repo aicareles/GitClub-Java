@@ -2,11 +2,14 @@ package com.jerry.geekdaily.domain;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Article implements Serializable {
@@ -21,13 +24,13 @@ public class Article implements Serializable {
 
     private String img_url;//上传的图片文件
 
-    private String img_link;//上传的图片网络地址
-
     private String link;//源url
 
     //此字段不返回
-    @JSONField(serialize=false)
-    @Lob @Basic(fetch = FetchType.LAZY) @Column(columnDefinition = "text")
+    @JSONField(serialize = false)
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(columnDefinition = "text")
     private String md_content;//md风格的文本
 
     private String wrap_link;//外部url
@@ -37,6 +40,10 @@ public class Article implements Serializable {
     private int contributor_id;//贡献者id(user_id)
 
     private int stars;//点赞数
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private User user;// 用户表外键
 
     private int un_stars;//反赞数
 
@@ -55,10 +62,6 @@ public class Article implements Serializable {
     private Date date;
 
     private int review_status;//审核状态  0代表审核审核中 1代表审核成功  -1代表审核失败
-
-//    //文章--点赞用户   多对多关系
-//    @ManyToMany(mappedBy = "articleList")
-//    private List<User> users;
 
     public Article() {
     }
@@ -93,14 +96,6 @@ public class Article implements Serializable {
 
     public void setImg_url(String img_url) {
         this.img_url = img_url;
-    }
-
-    public String getImg_link() {
-        return img_link;
-    }
-
-    public void setImg_link(String img_link) {
-        this.img_link = img_link;
     }
 
     public String getLink() {
@@ -213,6 +208,14 @@ public class Article implements Serializable {
 
     public void setReview_status(int review_status) {
         this.review_status = review_status;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     //    @JsonBackReference

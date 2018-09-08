@@ -17,7 +17,8 @@ public class HttpAspect {
     private final static Logger logger = LoggerFactory.getLogger(HttpAspect.class);
 
     //公用注解  切面
-    @Pointcut("execution(public * com.jerry.geekdaily.controller.ArticleController.*(..)) || execution(public * com.jerry.geekdaily.controller.CommentController.*(..))")
+//    @Pointcut("execution(public * com.jerry.geekdaily.controller.ArticleController.*(..)) || execution(public * com.jerry.geekdaily.controller.CommentController.*(..))")
+    @Pointcut("execution(public * com.jerry.geekdaily.controller.CommentController.*(..))")
     public void log(){
 
     }

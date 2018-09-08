@@ -70,9 +70,12 @@ public enum ResultCode {
     /**
      * 没有修改文章权限
      */
-    NO_EDIT_PERMITION(1014, "没有修改文章权限");
+    NO_EDIT_PERMITION(1014, "没有修改文章权限"),
 
-
+    /**
+     * 没有审核文章权限
+     */
+    NO_REVIEW_PERMITION(1015, "没有审核文章权限");
 
     public int code;
     public String msg;

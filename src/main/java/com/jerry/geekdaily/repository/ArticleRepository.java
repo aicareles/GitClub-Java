@@ -9,6 +9,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ArticleRepository extends JpaRepository<Article,Integer> {
+
+    @Query("select u from Article u where u.review_status = 1")
+    Page<Article> findAllReviewedArticles(Pageable pageable);
+
     @Query("select u from Article u where u.article_id = :article_id")
     Article findArticleByArticle_id(@Param("article_id")int article_id);
 
