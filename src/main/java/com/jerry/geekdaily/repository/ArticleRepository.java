@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface ArticleRepository extends JpaRepository<Article,Integer> {
 
     @Query("select u from Article u where u.review_status = 1")
@@ -18,5 +20,8 @@ public interface ArticleRepository extends JpaRepository<Article,Integer> {
 
     @Query("select u from Article u where u.contributor_id = :user_id")
     Page<Article> findAllByContributor_id(@Param("user_id")int user_id, Pageable pageable);
+
+    @Query("select u from Article u where u.article_id in (:article_ids) order by u.date desc")
+    List<Article> findArticlesByArticle_idIn(@Param("article_ids")List<Integer> article_ids);
 
 }

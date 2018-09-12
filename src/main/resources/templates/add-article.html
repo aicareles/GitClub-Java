@@ -125,7 +125,7 @@
                             <h2 class="add-article-box-title"><span>分类</span></h2>
                             <div class="add-article-box-content">
                                 <input type="text" class="form-control" placeholder="请输入分类" id="category" name="category"
-                                       required autocomplete="off">
+                                       value="Android" required autocomplete="off" disabled="disabled">
                                 <span class="prompt-text">如Android、Java等。</span>
                             </div>
                         </div>
@@ -144,7 +144,7 @@
                             <h2 class="add-article-box-title"><span>文章链接</span></h2>
                             <div class="add-article-box-content">
                                 <input type="text" class="form-control" placeholder="请输入文章链接" id="link" name="link"
-                                       required autocomplete="off" onchange="isValidURL(this.value)">
+                                       required autocomplete="off" onchange="isValidURL(this.value)"/>
                                 <span class="prompt-text">文章链接可选择网页链接。</span>
                             </div>
                         </div>
@@ -167,6 +167,9 @@
                                        <!--name="article_img" autocomplete="off">-->
                                 <input type="text" class="form-control" placeholder="请输入文章图片链接" id="article_img" name="article_img"
                                        required autocomplete="off" onchange="isValidURL(this.value)">
+                                <h2 class="add-article-box-title"><span>或者</span></h2>
+                                <input type="file" placeholder="点击按钮选择图片" id="upload_img" name="upload_img" accept="image/*"/>
+                                <input type="button" class="form-control" value="点击上传" onclick="uploadImg()"/>
                             </div>
                         </div>
                         <div class="add-article-box">
@@ -362,6 +365,43 @@ window.onload = function () {
     var userId = getCookie("geek_userId");
     contributor_id.value = parseInt(userId);
 };
+
+//上传图片
+function uploadImg() {
+    var file = $("#upload_img")[0].files[0];
+    if(file && file.size > 0){
+        if(file.size > 1024 * 1024 * 10) {
+            alert('图片大小不能超过 10MB!');
+            return false;
+        }
+        var formdata = new FormData();
+        formdata.append('article_img',file);
+        $.ajax({
+            type: "POST",
+            url: "/geekdaily/uploadArticleImg",
+            data: formdata,
+            processData : false,
+            contentType : false,
+            async:false,
+            cache: false, //不缓存此页面
+            success: function(data){
+                //前端调用成功后，可以处理后端传回的json格式数据。
+                if(data.code == 0){
+                    var article_img = document.getElementById("article_img");
+                    if(data.data["article_img"] != null){
+                        article_img.value = data.data["article_img"];
+                    }
+                    window.alert("上传图片成功!");
+                }else {
+                    window.alert("sss");
+                }
+            },
+            error:function (data) {
+                window.alert("上传出错了!");
+            }
+        })
+    }
+}
 
 //上传文章
 function uploadArticle() {

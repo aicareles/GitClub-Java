@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jerry.geekdaily.base.Result;
 import com.jerry.geekdaily.base.ResultCode;
 import com.jerry.geekdaily.base.ResultUtils;
+import com.jerry.geekdaily.config.Constans;
 import com.jerry.geekdaily.domain.User;
 import com.jerry.geekdaily.repository.UserRepository;
 import com.jerry.geekdaily.util.HttpUtils;
@@ -103,8 +104,8 @@ public class WeChatController {
         String requestUrl = "https://api.weixin.qq.com/cgi-bin/token";
         StringBuffer requestUrlParam = new StringBuffer();
         requestUrlParam.append("grant_type" + "=" + "client_credential");
-        requestUrlParam.append("&" + "appid" + "=" + "wx5cd48edea47a1f48");
-        requestUrlParam.append("&" + "secret" + "=" + "f287022f6c86d348ef6db4ad5e93709b");
+        requestUrlParam.append("&" + "appid" + "=" + Constans.WECHAT_APP_ID);
+        requestUrlParam.append("&" + "secret" + "=" + Constans.WECHAT_SECRET);
 
         //发送post请求读取调用微信接口获取openid用户唯一标识
         JSONObject jsonObject = JSON.parseObject(HttpUtils.sendGet(requestUrl, String.valueOf(requestUrlParam)));
@@ -122,8 +123,8 @@ public class WeChatController {
         String wxCode = code;
         String requestUrl = "https://api.weixin.qq.com/sns/jscode2session";
         Map<String, String> requestUrlParam = new HashMap<String, String>();
-        requestUrlParam.put("appid", "wx5cd48edea47a1f48");//小程序appId
-        requestUrlParam.put("secret", "b5b627c95cd043681857c6c7d1e3a488");
+        requestUrlParam.put("appid", Constans.WECHAT_APP_ID);//小程序appId
+        requestUrlParam.put("secret", Constans.WECHAT_SECRET);
         requestUrlParam.put("js_code", wxCode);//小程序端返回的code
         requestUrlParam.put("grant_type", "authorization_code");//默认参数
 
@@ -133,18 +134,6 @@ public class WeChatController {
     }
 
 
-    //    @RequestMapping(value = "/checkWeixinValid",method=RequestMethod.GET)
-//    public String checkWeixinValid(@RequestParam(name="signature")String signature, @RequestParam(name="timestamp")String timestamp,
-//                                   @RequestParam(name="nonce")String nonce, @RequestParam(name="echostr")String echostr,
-//                                   HttpServletResponse resp){
-//        logger.info("signature:"+signature+"==timestamp:"+timestamp+"==nonce:"+nonce+"==echostr:"+echostr);
-//        if(SignUtils.checkSignature(signature, timestamp, nonce)){
-//            logger.info("签名验证成功!");
-//        }else {
-//            logger.info("签名验证失败!");
-//        }
-//        return echostr;
-//    }
     //用户发给小程序的消息以及开发者需要的事件推送，都将被微信转发至该服务器地址中
     @RequestMapping(value = "/checkWeixinValid", method = RequestMethod.GET)
     public String checkWeixinValid(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

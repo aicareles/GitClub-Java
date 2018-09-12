@@ -3,6 +3,8 @@ package com.jerry.geekdaily.controller;
 import com.jerry.geekdaily.domain.Article;
 import com.jerry.geekdaily.repository.ArticleRepository;
 import com.jerry.geekdaily.util.CookieUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class HomeController {
+
+    private final static Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     @Autowired
     private ArticleRepository articleRepository;

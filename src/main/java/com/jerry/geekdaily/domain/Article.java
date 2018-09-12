@@ -28,8 +28,7 @@ public class Article implements Serializable {
 
     //此字段不返回
     @JSONField(serialize = false)
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
+    @Lob @Basic(fetch = FetchType.LAZY)
     @Column(columnDefinition = "text")
     private String md_content;//md风格的文本
 

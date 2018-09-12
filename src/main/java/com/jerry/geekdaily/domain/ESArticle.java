@@ -17,7 +17,7 @@ public class ESArticle implements Serializable {
 
     private String des;
 
-    private String img_url;//头像
+    private String img_url;//上传的图片文件
 
     private String link;//源url
 

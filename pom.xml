@@ -102,6 +102,13 @@
             <version>2.7.0</version>
         </dependency>
 
+        <!-- markdown解析 -->
+        <dependency>
+            <groupId>org.pegdown</groupId>
+            <artifactId>pegdown</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+
         <!--关键字提取-->
         <dependency>
             <groupId>com.hankcs</groupId>

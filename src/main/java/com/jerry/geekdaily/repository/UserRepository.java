@@ -4,13 +4,17 @@ import com.jerry.geekdaily.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 public interface UserRepository extends JpaRepository<User,Integer> {
 //    @Transactional(readOnly = true)
 //    UploadFile getUploadFilesById(@Param("id")int id);
 
 //    Optional<User> login(@Param(value = "user")User user);
+
+    @Query("select u from User u where u.user_id in (:user_ids)")
+    List<User> findUsersByUser_idIn(@Param("user_ids")List<Integer> user_ids);
 
     @Query("select u from User u where u.user_id = :user_id")
     User findUserByUser_id(@Param("user_id")int user_id);

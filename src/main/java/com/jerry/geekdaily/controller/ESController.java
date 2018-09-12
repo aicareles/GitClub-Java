@@ -1,5 +1,6 @@
 package com.jerry.geekdaily.controller;
 
+import com.hankcs.hanlp.HanLP;
 import com.jerry.geekdaily.base.Result;
 import com.jerry.geekdaily.base.ResultUtils;
 import com.jerry.geekdaily.domain.ESArticle;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 @Api(value = "ESController", description = "全局关键字查询相关接口")
 @RestController
 public class ESController {
@@ -45,6 +47,21 @@ public class ESController {
 
     @Autowired
     private ESArticleSearchRepository articleSearchRepository;
+
+//    @PostMapping("/deleteAllES")
+//    public boolean deleteAllES(){
+//        articleSearchRepository.deleteAll();
+//        return true;
+//    }
+
+//    @PostMapping("/updateAllES")
+//    public boolean updateAllES(){
+//        List<Article> articles = articleRepository.findAll();
+//        articles.forEach(article -> {
+//            articleSearchRepository.save(new ESArticle(article));
+//        });
+//        return true;
+//    }
 
 //    //全文关键字搜索
 //    @RequestMapping("/query")
@@ -60,16 +77,17 @@ public class ESController {
 
     /**
      * 3、查、分页、分数、分域（结果一个也不少）
-     * @param page 当前页数
-     * @param size 返回的文章数量
+     *
+     * @param page  当前页数
+     * @param size  返回的文章数量
      * @param query 关键字
      * @return
      */
     @ApiOperation(value = "全局关键字查询", notes = "全局关键字查询接口")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "当前页数", required = true ,dataType = "int"),
-            @ApiImplicitParam(name = "size", value = "返回的文章数量", required = true ,dataType = "int"),
-            @ApiImplicitParam(name = "query", value = "关键字---标题、描述", required = true ,dataType = "string")
+            @ApiImplicitParam(name = "page", value = "当前页数", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "返回的文章数量", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "query", value = "关键字---标题、描述", required = true, dataType = "string")
     })
     @RequestMapping("/query")
     public Result<ESArticle> query(@RequestParam Integer page, @RequestParam Integer size, @RequestParam String query) {
@@ -79,8 +97,8 @@ public class ESController {
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
         queryBuilder.must()
                 .add(QueryBuilders.boolQuery()
-                .should(QueryBuilders.matchQuery("title", query))
-                .should(QueryBuilders.matchQuery("des", query)));
+                        .should(QueryBuilders.matchQuery("title", query))
+                        .should(QueryBuilders.matchQuery("des", query)));
 
 //        queryBuilder.must(QueryBuilders.matchQuery("title", query));
 //                .must(QueryBuilders.matchQuery("des", query))
@@ -102,8 +120,18 @@ public class ESController {
 
     }
 
-
-
+    @ApiOperation(value = "相关四篇文章查询", notes = "相关四篇文章查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "key", value = "关键字---标题、描述", required = true, dataType = "string")
+    })
+    @RequestMapping("/like")
+    public Result<ESArticle> like(@RequestParam String key) {
+        //进行关键字过滤筛选
+        List<String> keywordList = HanLP.extractKeyword(key, 3);
+        StringBuffer tempKey = new StringBuffer();
+        keywordList.forEach(tempKey::append);
+        return query(0, 4, tempKey.toString());
+    }
 
     /**
      * 查询所有

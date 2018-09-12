@@ -9,6 +9,7 @@ import com.jerry.geekdaily.domain.Stars;
 import com.jerry.geekdaily.domain.User;
 import com.jerry.geekdaily.repository.*;
 import com.jerry.geekdaily.util.LinkUtils;
+import com.jerry.geekdaily.util.MarkdownUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -45,7 +46,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-//备份
+
 @CacheConfig(cacheNames = "ArticleController")
 @Api(value = "ArticleController", description = "文章管理相关接口")
 @RestController //这里必须是@Controller  如果是@RestController   则返回的html是个字符串
@@ -85,8 +86,10 @@ public class ArticleController {
             @ApiImplicitParam(name = "article_img", value = "文章图片文件", required = true, dataType = "file")
     })
     @PostMapping("/uploadArticleImg")
-    public String uploadArticleImg(@RequestParam(value = "article_img") MultipartFile file) {
-        return uploadImg(file);
+    public Result<Map<String, String>> uploadArticleImg(@RequestParam(value = "article_img") MultipartFile file) {
+        Map<String, String> map = new HashMap<>();
+        map.put(file.getName(), uploadImg(file));
+        return ResultUtils.ok(map);
     }
 
     /**
@@ -107,7 +110,6 @@ public class ArticleController {
             @ApiImplicitParam(name = "category", value = "文章分类", required = true, dataType = "string"),
             @ApiImplicitParam(name = "rank", value = "文章等级", required = true, dataType = "int"),
             @ApiImplicitParam(name = "link", value = "文章链接", required = true, dataType = "string"),
-            @ApiImplicitParam(name = "md_content", value = "MD风格文本", required = false, dataType = "string"),
             @ApiImplicitParam(name = "article_img", value = "上传文章图片的url", required = true, dataType = "string")
     })
     @CacheEvict(value = "ArticleController", allEntries = true)//上传添加文章，将文章相关缓存清空
@@ -119,21 +121,10 @@ public class ArticleController {
                                          @RequestParam(value = "category") String category,
                                          @RequestParam(value = "rank") int rank,
                                          @RequestParam(value = "link") String link,
-                                         @RequestParam(value = "md_content", required = false) String md_content,
                                          @RequestParam(value = "article_img") String article_img) {
         if (StringUtils.isEmpty(title) || StringUtils.isEmpty(contributor_id) || StringUtils.isEmpty(link)
                 || StringUtils.isEmpty(category) || StringUtils.isEmpty(rank) || StringUtils.isEmpty(article_img)) {
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
-        }
-        ValueOperations<String, Integer> operations = redisTemplate.opsForValue();
-        Integer count = 0;
-        //验证  普通用户一天上传文章次数不能超过1次
-        boolean exists = redisTemplate.hasKey(String.valueOf(contributor_id));
-        if (exists) {
-            count = operations.get(String.valueOf(contributor_id));
-            if (count >= 1) {
-                return ResultUtils.error("当天文章上传次数已达上限!");
-            }
         }
         Article article = new Article();
         article.setTitle(title);
@@ -143,7 +134,7 @@ public class ArticleController {
         article.setLink(link);
         article.setCategory(category);
         article.setRank(rank);
-        article.setMd_content(md_content);
+        article.setMd_content(MarkdownUtils.getMdContent(link));
         String wrap_link = LinkUtils.gererateShortUrl(link);
         article.setWrap_link(wrap_link);
         article.setDate(new Date());
@@ -158,6 +149,16 @@ public class ArticleController {
                 //插入数据到引擎
                 articleSearchRepository.save(new ESArticle(article));
             }else {//普通用户  限制上传次数（每天一篇）
+                ValueOperations<String, Integer> operations = redisTemplate.opsForValue();
+                Integer count = 0;
+                //验证  普通用户一天上传文章次数不能超过1次
+                boolean exists = redisTemplate.hasKey(String.valueOf(contributor_id));
+                if (exists) {
+                    count = operations.get(String.valueOf(contributor_id));
+                    if (count >= 1) {
+                        return ResultUtils.error("当天文章上传次数已达上限!");
+                    }
+                }
                 article.setReview_status(0);
                 //保存上传次数到redis  key为userid   value为次数
                 operations.set(String.valueOf(contributor_id), count + 1, 1, TimeUnit.DAYS);
@@ -166,30 +167,6 @@ public class ArticleController {
         articleRepository.save(article);
         return ResultUtils.ok(article);
     }
-
-//    @PostMapping("/updateEsAllArticle")
-//    public boolean updateEsAllArticle() {
-//        Iterable<ESArticle> articles = articleSearchRepository.findAll();
-//        for (ESArticle esArticle : articles) {
-//            int user_id = esArticle.getContributor_id();
-//            User user = userRepository.findUserByUser_id(user_id);
-//            esArticle.setUser(user);
-//            articleSearchRepository.save(esArticle);
-//        }
-//        return true;
-//    }
-
-//    @PostMapping("/updateAllArticle")
-//    public boolean updateAllArticle() {
-//        List<Article> articles = articleRepository.findAll();
-//        for (Article article : articles) {
-//            int user_id = article.getContributor_id();
-//            User user = userRepository.findUserByUser_id(user_id);
-//            article.setUser(user);
-//            articleRepository.save(article);
-//        }
-//        return true;
-//    }
 
     /**
      * 文章编辑更新
@@ -269,7 +246,6 @@ public class ArticleController {
         }
         article.setDate(new Date());
         articleRepository.saveAndFlush(article);
-        logger.info("提交成功!");
         //更新数据到引擎
         articleSearchRepository.save(new ESArticle(article));
         return ResultUtils.ok(article);
@@ -378,8 +354,8 @@ public class ArticleController {
             @ApiImplicitParam(name = "status", value = "点赞/反赞状态", required = true, dataType = "int")
     })
     @CacheEvict(value = "ArticleController", allEntries = true)//将文章相关缓存清空
-    @PostMapping("/articleStar")
-    public Result<Stars> articleStar(@RequestParam("article_id") int article_id, @RequestParam("user_id") int user_id,
+    @PostMapping("/starArticle")
+    public Result<Stars> starArticle(@RequestParam("article_id") int article_id, @RequestParam("user_id") int user_id,
                                      @RequestParam("type") int type, @RequestParam("status") int status) {
         //先查看该用户是否已经点赞/反赞，如果没有点赞/反赞 则增加一条记录，如果已经点赞/反赞，查看点赞/反赞的状态status
         //如果该值为0  若点赞，则设置为1，若反赞，则设置为2     取消点赞/反赞，则设置为0
@@ -468,13 +444,13 @@ public class ArticleController {
     @PostMapping("/getArticleStarers")
     public Result<User> getArticleStarers(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestParam("article_id") int article_id) {
         Page<Stars> pages = starsRepository.findStarsByArticle_id(article_id, PageRequest.of(page,size, new Sort(Sort.Direction.DESC, "date")));//
-        List<Stars> contents = pages.getContent();
-        List<User> userList = new ArrayList<>();
-        for (Stars stars : contents){
-            User user = userRepository.findUserByUser_id(stars.getUser_id());
-            userList.add(user);
+        List<User> users = new ArrayList<>();
+        if(pages.getContent().size() > 0){
+            List<Integer> user_ids = new ArrayList<>();
+            pages.getContent().forEach(stars -> user_ids.add(stars.getUser_id()));
+            users = userRepository.findUsersByUser_idIn(user_ids);
         }
-        return ResultUtils.ok(userList);
+        return ResultUtils.ok(users);
     }
 
     /**
@@ -499,13 +475,13 @@ public class ArticleController {
             return ResultUtils.error("未找到相关用户!");
         }
         Page<Stars> pages = starsRepository.findStarsByUser_id(user_id, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
-        List<Stars> contents = pages.getContent();
-        List<Article> articleList = new ArrayList<>();
-        for (Stars stars : contents) {
-            Article article = articleRepository.findArticleByArticle_id(stars.getArticle_id());
-            articleList.add(article);
+        List<Article> articles = new ArrayList<>();
+        if(pages.getContent().size() > 0){
+            List<Integer> article_ids = new ArrayList<>();
+            pages.getContent().forEach(stars -> article_ids.add(stars.getArticle_id()));
+            articles = articleRepository.findArticlesByArticle_idIn(article_ids);
         }
-        return ResultUtils.ok(articleList);
+        return ResultUtils.ok(articles);
     }
 
     /**
@@ -608,6 +584,12 @@ public class ArticleController {
      * @param is_pass 是否通过审核
      * @return
      */
+    @ApiOperation(value = "文章审核", notes = "文章审核接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "user_id", value = "审核者ID", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "article_id", value = "文章ID", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "is_pass", value = "是否通过审核", required = true, dataType = "boolean")
+    })
     @CacheEvict(value = "ArticleController", allEntries = true)//删除文章，将文章相关缓存清空
     @PostMapping("/reviewArticle")
     public Result<Boolean> reviewArticle(@RequestParam int user_id, @RequestParam int article_id, @RequestParam boolean is_pass){
