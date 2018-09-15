@@ -75,7 +75,22 @@ public enum ResultCode {
     /**
      * 没有审核文章权限
      */
-    NO_REVIEW_PERMITION(1015, "没有审核文章权限");
+    NO_REVIEW_PERMITION(1015, "没有审核文章权限"),
+
+    /**
+     * 当天文章上传次数已达上限
+     */
+    UPLOAD_LIMIT(1016, "当天文章上传次数已达上限!"),
+
+    /**
+     * 未找到相应文章
+     */
+    NO_FIND_ARTICLE(1017, "未找到相应文章"),
+
+    /**
+     * 上传图片或文章链接格式错误
+     */
+    UPLOAD_LINK_ERROR(1018, "上传图片或文章链接格式错误");
 
     public int code;
     public String msg;

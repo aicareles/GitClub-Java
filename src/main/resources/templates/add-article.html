@@ -165,7 +165,7 @@
                             <div class="add-article-box-content">
                                 <!--<input type="file" class="form-control" placeholder="点击按钮选择图片" id="article_img" accept="image/*"-->
                                        <!--name="article_img" autocomplete="off">-->
-                                <input type="text" class="form-control" placeholder="请输入文章图片链接" id="article_img" name="article_img"
+                                <input type="text" class="form-control" placeholder="请输入文章图片链接" id="img_url" name="img_url"
                                        required autocomplete="off" onchange="isValidURL(this.value)">
                                 <h2 class="add-article-box-title"><span>或者</span></h2>
                                 <input type="file" placeholder="点击按钮选择图片" id="upload_img" name="upload_img" accept="image/*"/>
@@ -412,7 +412,7 @@ function uploadArticle() {
     var category = document.getElementById("category").value;
     var rank = parseInt($("input[name='rank']:checked").val());
     var link = document.getElementById("link").value;
-    var article_img = document.getElementById("article_img").value;
+    var img_url = document.getElementById("img_url").value;
     $.ajax({
         type: "POST",
         url: "/geekdaily/uploadArticle",
@@ -423,7 +423,7 @@ function uploadArticle() {
             "category":category,
             "rank":rank,
             "link":link,
-            "article_img":article_img
+            "img_url":img_url
         },
         cache: false, //不缓存此页面
         success: function(data){
@@ -477,14 +477,15 @@ function uploadArticle() {
 // }
 //js验证一个URl字符串是否有效
 function isValidURL(url){
-    var urlRegExp=/^((https|http|ftp|rtsp|mms)?:\/\/)+[A-Za-z0-9]+\.[A-Za-z0-9]+[\/=\?%\-&_~`@[\]\':+!]*([^<>\"\"])*$/;
-    if(urlRegExp.test(url)){
-        return true;
-    }else{
-        alert("文章链接格式非法，请重新填写!");
-        document.getElementById("link").value ="";
-        return false;
-    }
+    // var urlRegExp=/^((https|http|ftp|rtsp|mms)?:\/\/)+[A-Za-z0-9]+\.[A-Za-z0-9]+[\/=\?%\-&_~`@[\]\':+!]*([^<>\"\"])*$/;
+    // if(urlRegExp.test(url)){
+    //     return true;
+    // }else{
+    //     alert("文章链接格式非法，请重新填写!");
+    //     document.getElementById("link").value ="";
+    //     return false;
+    // }
+    return true;
 }
 function setCookie(name,value)
 {

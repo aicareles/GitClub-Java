@@ -20,8 +20,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseBody
-    public Result resultError(){
-        return ResultUtils.error(ResultCode.SERVER_EXCEPTION);
+    public Result resultError(Exception ex){
+        return ResultUtils.error(String.valueOf(ex));
     }
 
     //在抛出参数异常时  会统一回调该方法

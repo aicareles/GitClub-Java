@@ -299,7 +299,7 @@
 	/**
 	 * Convert from camel case parameters to Hungarian, based on a Hungarian map
 	 * created by _fnHungarianMap.
-	 *  @param {object} src The model object which holds all parameters that can be
+	 *  @param {object} src The dto object which holds all parameters that can be
 	 *    mapped.
 	 *  @param {object} user The object to convert from camel case to Hungarian.
 	 *  @param {boolean} force When set to `true`, properties which already have a
@@ -11123,7 +11123,7 @@
 
 
 	/*
-	 * Developer note - See note in model.defaults.js about the use of Hungarian
+	 * Developer note - See note in dto.defaults.js about the use of Hungarian
 	 * notation and camel case.
 	 */
 
@@ -13690,7 +13690,7 @@
 	} );
 
 
-	// Built in type detection. See model.ext.aTypes for information about
+	// Built in type detection. See dto.ext.aTypes for information about
 	// what is required from this methods.
 	$.extend( DataTable.ext.type.detect, [
 		// Plain numbers - first since V8 detects some plain numbers as dates
@@ -13741,7 +13741,7 @@
 
 
 
-	// Filter formatting functions. See model.ext.ofnSearch for information about
+	// Filter formatting functions. See dto.ext.ofnSearch for information about
 	// what is required from these methods.
 
 

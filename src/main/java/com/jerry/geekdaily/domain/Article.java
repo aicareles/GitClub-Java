@@ -1,15 +1,11 @@
 package com.jerry.geekdaily.domain;
 
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 @Entity
 public class Article implements Serializable {
@@ -18,12 +14,15 @@ public class Article implements Serializable {
     @GeneratedValue
     private Integer article_id;
 
+    @NotEmpty(message="标题不能为空！")
     private String title;
 
     private String des;
 
+    @NotEmpty(message="图片链接不能为空！")
     private String img_url;//上传的图片文件
 
+    @NotEmpty(message="文章链接不能为空！")
     private String link;//源url
 
     //此字段不返回
@@ -52,6 +51,7 @@ public class Article implements Serializable {
 
     private String tag;//文章标签
 
+    @NotEmpty(message="分类不能为空！")
     private String category;//文章分类（Android、iOS、Java等）
 
     private int rank;//文章适合等级（0所有人、1初学、2进阶）

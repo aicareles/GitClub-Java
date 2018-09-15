@@ -1,5 +1,9 @@
 package com.jerry.geekdaily.util;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.regex.Pattern;
+
 public class LinkUtils {
 
     /**
@@ -44,6 +48,18 @@ public class LinkUtils {
 //            resUrl[i] = outChars;
 //        }
         return outChars;
+    }
+
+    /**
+     * 功能：检测当前URL是否可连接或是否有效,
+     * 描述：利用正则表达式判断url是否有效
+     * @param url 指定URL网络地址
+     * @return URL
+     */
+    public static boolean verifyURL(String url) {
+        Pattern pattern = Pattern
+                .compile("^([hH][tT]{2}[pP]://|[hH][tT]{2}[pP][sS]://)(([A-Za-z0-9-~]+).)+([A-Za-z0-9-~\\/])+$");
+        return pattern.matcher(url).matches();
     }
 
 }

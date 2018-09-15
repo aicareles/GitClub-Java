@@ -154,7 +154,7 @@ public class UploadController {
 //     * @return
 //     */
 //    @PostMapping("/uploadArticleImg")
-//    public String uploadArticleImg(@RequestParam("file") MultipartFile file,  HttpServletRequest request,ModelMap model) {
+//    public String uploadArticleImg(@RequestParam("file") MultipartFile file,  HttpServletRequest request,ModelMap dto) {
 //        if (!file.isEmpty()) {
 //            //保存时的文件名
 //            DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -204,7 +204,7 @@ public class UploadController {
      * @return
      */
 //    @PostMapping("/uploadFile")
-//    public String handleFileUpload(@RequestParam("file") MultipartFile file,@RequestParam(value = "des") String des,  HttpServletRequest request,ModelMap model) {
+//    public String handleFileUpload(@RequestParam("file") MultipartFile file,@RequestParam(value = "des") String des,  HttpServletRequest request,ModelMap dto) {
 //        if (!file.isEmpty()) {
 //            try {
 //                /*
@@ -251,7 +251,7 @@ public class UploadController {
 ////                }
 ////                file.transferTo(targetFile);
 ////                //将文件路径转发到页面
-////                model.addAttribute("message", request.getContextPath()+"/upload/"+fileName);
+////                dto.addAttribute("message", request.getContextPath()+"/upload/"+fileName);
 ////                logger.info("文件路径："+request.getContextPath());
 //
 //                byte[] bytes = file.getBytes();
@@ -283,11 +283,11 @@ public class UploadController {
 //                logger.info("保存文件成功");
 ////                redirectAttributes.addFlashAttribute("message",
 ////                        "You successfully uploaded '" + file.getOriginalFilename() + "'");
-//                model.addAttribute("message", "You successfully uploaded '" + file.getOriginalFilename() + "'");
+//                dto.addAttribute("message", "You successfully uploaded '" + file.getOriginalFilename() + "'");
 //            } catch (IOException e) {
 //                e.printStackTrace();
 ////                redirectAttributes.addFlashAttribute("message", "上传失败:"+e.getMessage());
-//                model.addAttribute("message",  "上传失败:"+e.getMessage());
+//                dto.addAttribute("message",  "上传失败:"+e.getMessage());
 //                logger.info("redirect:uploadStatus");
 ////                return "redirect:uploadStatus";
 //                return "/uploadStatus";
@@ -297,7 +297,7 @@ public class UploadController {
 //            return "/uploadStatus";
 //        } else {
 ////            redirectAttributes.addFlashAttribute("message", "Please select a file to upload");
-//            model.addAttribute("message",  "Please select a file to upload");
+//            dto.addAttribute("message",  "Please select a file to upload");
 ////            return "redirect:uploadStatus";
 //            return "/uploadStatus";
 //        }

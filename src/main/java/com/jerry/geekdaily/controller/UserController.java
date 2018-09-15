@@ -93,10 +93,10 @@ public class UserController {
                 CookieUtils.addCookie(user.getUser_id()+"", user.getNick_name(), response, request);
                 return ResultUtils.ok(user);
             }else {
-                return ResultUtils.error("用户名或密码错误!");
+                return ResultUtils.error(ResultCode.INVALID_USERNAME_PASSWORD);
             }
         }else {
-            return ResultUtils.error("用户名或密码不能为空!");
+            return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
         }
     }
 

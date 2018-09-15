@@ -33,7 +33,7 @@ public class GameController {
     @PostMapping("/uploadGame")
     public void handleGameUpload(HttpServletResponse response, @RequestParam(value = "user_info") String user_info,@RequestParam(value = "game_info") String game_info,@RequestParam(value = "game_score") String game_score) {
 //        List<UploadFile> fileList = uploadFileRepository.findAll();
-//        model.addAttribute("fileList", fileList);
+//        dto.addAttribute("fileList", fileList);
         if(response.getCharacterEncoding()!=null){
             response.setCharacterEncoding("GBK");
         }

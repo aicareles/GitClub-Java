@@ -159,7 +159,7 @@
               <div class="add-article-box-content">
                 <!--<input type="file" class="form-control" placeholder="点击按钮选择图片" id="article_img" accept="image/*"-->
                        <!--name="article_img" autocomplete="off">-->
-                  <input type="text" class="form-control" placeholder="请输入文章图片链接" id="article_img" name="article_img" th:field="*{img_url}"
+                  <input type="text" class="form-control" placeholder="请输入文章图片链接" id="img_url" name="img_url" th:field="*{img_url}"
                          required autocomplete="off">
               </div>
               <!--<div class="add-article-box-footer">-->
@@ -348,27 +348,25 @@ function getCookie(name) {
 
 //更新文章
 function updateArticle(article_id) {
-    var editor_id = parseInt(getCookie("geek_userId"));
     var title = document.getElementById("title").value;
     var des = document.getElementById("des").value;
-    var userId = getCookie("geek_userId");
-    var contributor_id = parseInt(userId);
+    var contributor_id = parseInt(getCookie("geek_userId"));
     var category = document.getElementById("category").value;
     var rank = parseInt($("input[name='rank']:checked").val());
     var link = document.getElementById("link").value;
-    var article_img = document.getElementById("article_img").value;
+    var img_url = document.getElementById("img_url").value;
     $.ajax({
         type: "POST",
         url: "/geekdaily/updateArticle",
         data: {
             "article_id": article_id,
-            "editor_id": editor_id,
+            "contributor_id": contributor_id,
             "title": title,
             "des": des,
             "category": category,
             "rank": rank,
             "link": link,
-            "article_img": article_img
+            "img_url": img_url
         },
         cache: false, //不缓存此页面
         success: function(data){

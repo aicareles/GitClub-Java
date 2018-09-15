@@ -32,7 +32,7 @@ import java.util.List;
 @Api(value = "CommentController", description = "评论或回复的相关接口")
 @RestController
 public class CommentController {
-    private final static Logger logger = LoggerFactory.getLogger(ArticleController.class);
+    private final static Logger logger = LoggerFactory.getLogger(CommentController.class);
 
     @Autowired
     private ArticleRepository articleRepository;

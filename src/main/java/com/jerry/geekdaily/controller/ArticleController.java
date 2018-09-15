@@ -3,11 +3,16 @@ package com.jerry.geekdaily.controller;
 import com.jerry.geekdaily.base.Result;
 import com.jerry.geekdaily.base.ResultCode;
 import com.jerry.geekdaily.base.ResultUtils;
+import com.jerry.geekdaily.config.Constans;
 import com.jerry.geekdaily.domain.Article;
 import com.jerry.geekdaily.domain.ESArticle;
 import com.jerry.geekdaily.domain.Stars;
 import com.jerry.geekdaily.domain.User;
+import com.jerry.geekdaily.enums.AdminEnum;
+import com.jerry.geekdaily.enums.StarStatusEnum;
+import com.jerry.geekdaily.dto.UpdateArticleDTO;
 import com.jerry.geekdaily.repository.*;
+import com.jerry.geekdaily.util.BeanCopyUtil;
 import com.jerry.geekdaily.util.LinkUtils;
 import com.jerry.geekdaily.util.MarkdownUtils;
 import io.swagger.annotations.Api;
@@ -16,7 +21,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -27,15 +31,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.repository.query.Param;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
+import javax.validation.Valid;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -94,198 +100,108 @@ public class ArticleController {
 
     /**
      * 上传文章
-     *
-     * @param title       标题
-     * @param des         描述
-     * @param tag         文章标签
-     * @param article_img 文章图片url
-     * @return 文章实体对象
+     * @param articleInfo  文章表单对象
+     * @param bindingResult 错误结果
+     * @return 文章对象
      */
     @ApiOperation(value = "上传文章", notes = "上传文章接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "title", value = "文章标题", required = true, dataType = "string"),
             @ApiImplicitParam(name = "des", value = "文章描述", required = false, dataType = "string"),
-            @ApiImplicitParam(name = "tag", value = "文章标签", required = false, dataType = "string"),
             @ApiImplicitParam(name = "contributor_id", value = "贡献者ID", required = true, dataType = "int"),
             @ApiImplicitParam(name = "category", value = "文章分类", required = true, dataType = "string"),
             @ApiImplicitParam(name = "rank", value = "文章等级", required = true, dataType = "int"),
             @ApiImplicitParam(name = "link", value = "文章链接", required = true, dataType = "string"),
-            @ApiImplicitParam(name = "article_img", value = "上传文章图片的url", required = true, dataType = "string")
+            @ApiImplicitParam(name = "img_url", value = "上传文章图片的url", required = true, dataType = "string")
     })
     @CacheEvict(value = "ArticleController", allEntries = true)//上传添加文章，将文章相关缓存清空
     @PostMapping("/uploadArticle")
-    public Result<Article> uploadArticle(@RequestParam(value = "title") String title,
-                                         @RequestParam(value = "des") String des,
-                                         @RequestParam(value = "tag", required = false) String tag,
-                                         @RequestParam(value = "contributor_id") int contributor_id,
-                                         @RequestParam(value = "category") String category,
-                                         @RequestParam(value = "rank") int rank,
-                                         @RequestParam(value = "link") String link,
-                                         @RequestParam(value = "article_img") String article_img) {
-        if (StringUtils.isEmpty(title) || StringUtils.isEmpty(contributor_id) || StringUtils.isEmpty(link)
-                || StringUtils.isEmpty(category) || StringUtils.isEmpty(rank) || StringUtils.isEmpty(article_img)) {
-            return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
+    public Result<Article> uploadArticle(@Valid Article articleInfo, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()){
+            return ResultUtils.error(bindingResult.getFieldError().getDefaultMessage());
         }
-        Article article = new Article();
-        article.setTitle(title);
-        article.setDes(des);
-        article.setTag(tag);
-        article.setContributor_id(contributor_id);
-        article.setLink(link);
-        article.setCategory(category);
-        article.setRank(rank);
-        article.setMd_content(MarkdownUtils.getMdContent(link));
-        String wrap_link = LinkUtils.gererateShortUrl(link);
-        article.setWrap_link(wrap_link);
-        article.setDate(new Date());
-        article.setImg_url(article_img);
+        if(!LinkUtils.verifyURL(articleInfo.getLink()) || !LinkUtils.verifyURL(articleInfo.getImg_url())){
+            return ResultUtils.error(ResultCode.UPLOAD_LINK_ERROR);
+        }
+        articleInfo.setDate(new Date());
+        articleInfo.setMd_content(getMdContent(articleInfo.getLink()));
+        articleInfo.setWrap_link(LinkUtils.gererateShortUrl(articleInfo.getLink()));
         //判断是否为管理员   若为管理员则直接通过审核
-        User user = userRepository.findUserByUser_id(contributor_id);
-        article.setUser(user);
+        User user = userRepository.findUserByUser_id(articleInfo.getContributor_id());
+        articleInfo.setUser(user);
         if (null != user) {
-            article.setReview_status(user.getAdmin_status() == 1 ? 1 : 0);
-            if(user.getAdmin_status() == 1){//管理员  直接插入到es引擎  不限制上传次数
-                article.setReview_status(1);
+            articleInfo.setReview_status(user.getAdmin_status() == AdminEnum.ADMIN.getAdmin_status() ? 1 : 0);
+            if(user.getAdmin_status() == AdminEnum.ADMIN.getAdmin_status()){//管理员  直接插入到es引擎  不限制上传次数
+                articleInfo.setReview_status(1);
                 //插入数据到引擎
-                articleSearchRepository.save(new ESArticle(article));
+                articleSearchRepository.save(new ESArticle(articleInfo));
             }else {//普通用户  限制上传次数（每天一篇）
                 ValueOperations<String, Integer> operations = redisTemplate.opsForValue();
                 Integer count = 0;
                 //验证  普通用户一天上传文章次数不能超过1次
-                boolean exists = redisTemplate.hasKey(String.valueOf(contributor_id));
+                boolean exists = redisTemplate.hasKey(String.valueOf(articleInfo.getContributor_id()));
                 if (exists) {
-                    count = operations.get(String.valueOf(contributor_id));
+                    count = operations.get(String.valueOf(articleInfo.getContributor_id()));
                     if (count >= 1) {
-                        return ResultUtils.error("当天文章上传次数已达上限!");
+                        return ResultUtils.error(ResultCode.UPLOAD_LIMIT);
                     }
                 }
-                article.setReview_status(0);
+                articleInfo.setReview_status(0);
                 //保存上传次数到redis  key为userid   value为次数
-                operations.set(String.valueOf(contributor_id), count + 1, 1, TimeUnit.DAYS);
+                operations.set(String.valueOf(articleInfo.getContributor_id()), count + 1, 1, TimeUnit.DAYS);
             }
+        }else {
+            return ResultUtils.error(ResultCode.INVALID_USER);
         }
-        articleRepository.save(article);
-        return ResultUtils.ok(article);
+        articleRepository.save(articleInfo);
+        return ResultUtils.ok(articleInfo);
     }
 
     /**
      * 文章编辑更新
-     *
-     * @param article_id  文章ID
-     * @param editor_id  编辑者ID
-     * @param title       标题
-     * @param des         描述
-     * @param tag         文章标签
-     * @param article_img 文章图片url
-     * @return 文章实体对象
      */
     @ApiOperation(value = "文章编辑更新", notes = "文章编辑更新接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "article_id", value = "文章ID", required = true, dataType = "int"),
-            @ApiImplicitParam(name = "editor_id", value = "编辑者ID", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "contributor_id", value = "编辑者ID", required = true, dataType = "int"),
             @ApiImplicitParam(name = "title", value = "文章标题", required = false, dataType = "string"),
             @ApiImplicitParam(name = "des", value = "文章描述", required = false, dataType = "string"),
-            @ApiImplicitParam(name = "tag", value = "文章标签", required = false, dataType = "string"),
             @ApiImplicitParam(name = "category", value = "文章分类", required = false, dataType = "string"),
             @ApiImplicitParam(name = "rank", value = "文章等级", required = false, dataType = "int"),
             @ApiImplicitParam(name = "link", value = "文章链接", required = false, dataType = "string"),
-            @ApiImplicitParam(name = "md_content", value = "MD风格文本", required = false, dataType = "string"),
-            @ApiImplicitParam(name = "article_img", value = "文章图片url", required = false, dataType = "string")
+            @ApiImplicitParam(name = "img_url", value = "文章图片url", required = false, dataType = "string")
     })
     @CacheEvict(value = "ArticleController", allEntries = true)//更新文章，将文章相关缓存清空
     @PostMapping("/updateArticle")
-    public Result<Article> uploadArticle(@RequestParam(value = "article_id") int article_id,
-                                         @RequestParam(value = "editor_id") int editor_id,
-                                         @RequestParam(value = "title", required = false) String title,
-                                         @RequestParam(value = "des", required = false) String des,
-                                         @RequestParam(value = "tag", required = false) String tag,
-                                         @RequestParam(value = "category", required = false) String category,
-                                         @RequestParam(value = "rank", required = false) int rank,
-                                         @RequestParam(value = "link", required = false) String link,
-                                         @RequestParam(value = "md_content", required = false) String md_content,
-                                         @RequestParam(value = "article_img", required = false) String article_img) {
-        if (StringUtils.isEmpty(article_id) || StringUtils.isEmpty(editor_id)) {
-            return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
+    public Result<Article> updateArticle(@Valid UpdateArticleDTO articleInfo, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()){
+            return ResultUtils.error(bindingResult.getFieldError().getDefaultMessage());
+        }
+        if(!LinkUtils.verifyURL(articleInfo.getLink()) || !LinkUtils.verifyURL(articleInfo.getImg_url())){
+            return ResultUtils.error(ResultCode.UPLOAD_LINK_ERROR);
         }
         //先查询该文章
-        Article article = articleRepository.findArticleByArticle_id(article_id);
+        Article article = articleRepository.findArticleByArticle_id(articleInfo.getArticle_id());
         if (StringUtils.isEmpty(article)) {
-            return ResultUtils.error("未找到相应文章");
+            return ResultUtils.error(ResultCode.NO_FIND_ARTICLE);
         }
         //判断是否为管理员   若为管理员则直接通过审核
-        User user = userRepository.findUserByUser_id(editor_id);
+        User user = userRepository.findUserByUser_id(articleInfo.getContributor_id());
         if (null != user) {
-            if (user.getAdmin_status() != 1 && editor_id != article.getContributor_id()) {
+            if (user.getAdmin_status() != AdminEnum.ADMIN.getAdmin_status() && articleInfo.getContributor_id() != article.getContributor_id()) {
                 return ResultUtils.error(ResultCode.NO_EDIT_PERMITION);
             }
-            article.setReview_status(user.getAdmin_status() == 1 ? 1 : 0);
+            article.setDate(new Date());
+            article.setReview_status(user.getAdmin_status() == AdminEnum.ADMIN.getAdmin_status() ? 1 : 0);
+        }else {
+            return ResultUtils.error(ResultCode.INVALID_USER);
         }
-        if (!StringUtils.isEmpty(article_img)) {
-            article.setImg_url(article_img);
-        }
-        if(!StringUtils.isEmpty(category)){
-            article.setCategory(category);
-        }
-        if(!StringUtils.isEmpty(rank)){
-            article.setRank(rank);
-        }
-        if (!StringUtils.isEmpty(title)) {
-            article.setTitle(title);
-        }
-        if (!StringUtils.isEmpty(des)) {
-            article.setDes(des);
-        }
-        if (!StringUtils.isEmpty(tag)) {
-            article.setTag(tag);
-        }
-        if (!StringUtils.isEmpty(link)) {
-            article.setLink(link);
-        }
-        if (!StringUtils.isEmpty(md_content)) {
-            article.setMd_content(md_content);
-        }
-        article.setDate(new Date());
+        //赋值copy到查询到的文章
+        BeanCopyUtil.beanCopyWithIngore(articleInfo, article, "contributor_id");
         articleRepository.saveAndFlush(article);
         //更新数据到引擎
         articleSearchRepository.save(new ESArticle(article));
         return ResultUtils.ok(article);
-    }
-
-    /**
-     * 上传文件
-     *
-     * @param file
-     * @return 文件路径
-     */
-    private String uploadImg(MultipartFile file) {
-        String dateName = null;
-        if (file == null || file.isEmpty() || file.getSize() == 0) return dateName;
-        //文章大图文件上传
-        try {
-            File path = null;
-            try {
-                path = new File(ResourceUtils.getURL("classpath:").getPath());
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            if (!path.exists()) path = new File("");
-            System.out.println("path:" + path.getAbsolutePath());
-            //如果上传目录为/static/images/upload/，则可以如下获取：
-            File upload = new File(path.getAbsolutePath(), "static/images/upload/");
-            if (!upload.exists()) upload.mkdirs();
-            System.out.println("upload url:" + upload.getAbsolutePath());
-            //保存时的文件名(时间戳生成)
-            DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
-            Calendar calendar = Calendar.getInstance();
-            dateName = df.format(calendar.getTime()) + file.getOriginalFilename();
-            Path path1 = Paths.get(upload.getAbsolutePath(), dateName);
-            byte[] bytes = file.getBytes();
-            Files.write(path1, bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
-        return FILE_FOLDER+dateName;
     }
 
     /**
@@ -306,7 +222,7 @@ public class ArticleController {
         }
         Article article = articleRepository.findArticleByArticle_id(article_id);
         if (StringUtils.isEmpty(article)) {
-            return ResultUtils.error("未找到相关文章");
+            return ResultUtils.error(ResultCode.NO_FIND_ARTICLE);
         }
         articleRepository.deleteById(article_id);
         //删除中间表stars中的article_id的所有数据
@@ -385,7 +301,7 @@ public class ArticleController {
         }else {
             //往article表中添加star/unstar
             //存在数据   则判断点赞/反赞状态
-            if(starts.getStatus() == 1){
+            if(starts.getStatus() == StarStatusEnum.STAR_STATUS.getStar_status()){
                 if(status == 0){//取消点赞
                     starts.setStatus(0);
                     article.setStars(article.getStars()-1);
@@ -396,7 +312,7 @@ public class ArticleController {
                     article.setUn_stars(article.getStars()+1);
                     msg = "反赞成功!";
                 }
-            }else if(starts.getStatus() == 2){//当前反赞
+            }else if(starts.getStatus() == StarStatusEnum.UN_STAR_STATUS.getStar_status()){//当前反赞
                 if(status == 0){//取消反赞
                     starts.setStatus(0);
                     article.setUn_stars(article.getStars()-1);
@@ -472,7 +388,7 @@ public class ArticleController {
     public Result<Article> getMyStarArticles(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestParam("user_id") int user_id) {
         User user = userRepository.findUserByUser_id(user_id);
         if (StringUtils.isEmpty(user)) {
-            return ResultUtils.error("未找到相关用户!");
+            return ResultUtils.error(ResultCode.INVALID_USER);
         }
         Page<Stars> pages = starsRepository.findStarsByUser_id(user_id, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
         List<Article> articles = new ArrayList<>();
@@ -503,7 +419,7 @@ public class ArticleController {
     public Result<Article> getMyContributeArticles(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestParam("user_id") int user_id) {
         User user = userRepository.findUserByUser_id(user_id);
         if (StringUtils.isEmpty(user)) {
-            return ResultUtils.error("未找到相关用户!");
+            return ResultUtils.error(ResultCode.INVALID_USER);
         }
         Page<Article> pages = articleRepository.findAllByContributor_id(user_id, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
         List<Article> articleList = pages.getContent();
@@ -547,13 +463,42 @@ public class ArticleController {
         //先查询该文章
         Article article = articleRepository.findArticleByArticle_id(article_id);
         if (StringUtils.isEmpty(article)) {
-            return ResultUtils.error("未找到相应文章");
+            return ResultUtils.error(ResultCode.NO_FIND_ARTICLE);
+        }
+        //把当天的阅读数逐个添加到redis中
+        ValueOperations<String, Integer> operations = redisTemplate.opsForValue();
+        boolean exists = redisTemplate.hasKey(Constans.ARTICLE_TOTAL_VIEWS);
+        if(!exists){//当天第一次   赋值初始值为400-800的一个随机数
+            int random = new Random().nextInt(400)+400;
+            operations.set(Constans.ARTICLE_TOTAL_VIEWS, random, 1, TimeUnit.DAYS);
+        }else {
+            Integer views = operations.get(Constans.ARTICLE_TOTAL_VIEWS);
+            int num = new Random().nextInt(2)+1;
+            operations.set(Constans.ARTICLE_TOTAL_VIEWS, views+num);
         }
         article.setViews(article.getViews() + 1);
         articleRepository.saveAndFlush(article);
         //更新数据到引擎
         articleSearchRepository.save(new ESArticle(article));
         return ResultUtils.ok(article);
+    }
+
+    /**
+     * 获取当天文章总浏览量
+     *
+     */
+    @ApiOperation(value = "获取当天文章总浏览量", notes = "获取当天文章总浏览量接口")
+    @PostMapping("/getArticleTotalViews")
+    public Result<Integer> getArticleTotalViews(){
+        ValueOperations<String, Integer> operations = redisTemplate.opsForValue();
+        boolean exists = redisTemplate.hasKey(Constans.ARTICLE_TOTAL_VIEWS);
+        if(!exists){//当天还没有阅读数   赋值初始值为400-800的一个随机数
+            int random = new Random().nextInt(400)+400;
+            operations.set(Constans.ARTICLE_TOTAL_VIEWS, random, 1, TimeUnit.DAYS);
+            return ResultUtils.ok(random);
+        }else {
+            return ResultUtils.ok(operations.get(Constans.ARTICLE_TOTAL_VIEWS));
+        }
     }
 
     /**
@@ -572,7 +517,7 @@ public class ArticleController {
         //先查询该文章
         Article article = articleRepository.findArticleByArticle_id(article_id);
         if (StringUtils.isEmpty(article)) {
-            return ResultUtils.error("未找到相应文章");
+            return ResultUtils.error(ResultCode.NO_FIND_ARTICLE);
         }
         return ResultUtils.ok(article.getMd_content());
     }
@@ -599,12 +544,12 @@ public class ArticleController {
         //先查询该文章
         Article article = articleRepository.findArticleByArticle_id(article_id);
         if (StringUtils.isEmpty(article)) {
-            return ResultUtils.error("未找到相应文章");
+            return ResultUtils.error(ResultCode.NO_FIND_ARTICLE);
         }
         //判断是否为管理员
         User user = userRepository.findUserByUser_id(user_id);
         if (null != user) {
-            if (user.getAdmin_status() != 1) {
+            if (user.getAdmin_status() != AdminEnum.ADMIN.getAdmin_status()) {
                 return ResultUtils.error(ResultCode.NO_REVIEW_PERMITION);
             }
             if(is_pass){
@@ -618,6 +563,49 @@ public class ArticleController {
             articleSearchRepository.save(new ESArticle(article));
         }
         return ResultUtils.ok("审核操作成功!");
+    }
+
+    @Async
+    public String getMdContent(String link){
+        return MarkdownUtils.getMdContent(link);
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param file
+     * @return 文件路径
+     */
+    @Async
+    public String uploadImg(MultipartFile file) {
+        String dateName = null;
+        if (file == null || file.isEmpty() || file.getSize() == 0) return dateName;
+        //文章大图文件上传
+        try {
+            File path = null;
+            try {
+                path = new File(ResourceUtils.getURL("classpath:").getPath());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            if (!path.exists()) path = new File("");
+            System.out.println("path:" + path.getAbsolutePath());
+            //如果上传目录为/static/images/upload/，则可以如下获取：
+            File upload = new File(path.getAbsolutePath(), "static/images/upload/");
+            if (!upload.exists()) upload.mkdirs();
+            System.out.println("upload url:" + upload.getAbsolutePath());
+            //保存时的文件名(时间戳生成)
+            DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+            Calendar calendar = Calendar.getInstance();
+            dateName = df.format(calendar.getTime()) + file.getOriginalFilename();
+            Path path1 = Paths.get(upload.getAbsolutePath(), dateName);
+            byte[] bytes = file.getBytes();
+            Files.write(path1, bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+        return FILE_FOLDER+dateName;
     }
 
 }
