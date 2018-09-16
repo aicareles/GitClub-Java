@@ -1,8 +1,5 @@
 package com.jerry.geekdaily.util;
 
-import org.pegdown.PegDownProcessor;
-import org.springframework.util.StringUtils;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;

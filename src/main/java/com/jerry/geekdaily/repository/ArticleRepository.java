@@ -12,6 +12,9 @@ import java.util.List;
 
 public interface ArticleRepository extends JpaRepository<Article,Integer> {
 
+    @Query("select count(u) from Article u where u.review_status = 1")
+    Integer findAllArticleTotals();
+
     @Query("select u from Article u where u.review_status = 1")
     Page<Article> findAllReviewedArticles(Pageable pageable);
 

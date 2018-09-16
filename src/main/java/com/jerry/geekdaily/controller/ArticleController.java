@@ -108,6 +108,7 @@ public class ArticleController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "title", value = "文章标题", required = true, dataType = "string"),
             @ApiImplicitParam(name = "des", value = "文章描述", required = false, dataType = "string"),
+            @ApiImplicitParam(name = "tag", value = "文章标签", required = false, dataType = "string"),
             @ApiImplicitParam(name = "contributor_id", value = "贡献者ID", required = true, dataType = "int"),
             @ApiImplicitParam(name = "category", value = "文章分类", required = true, dataType = "string"),
             @ApiImplicitParam(name = "rank", value = "文章等级", required = true, dataType = "int"),
@@ -499,6 +500,17 @@ public class ArticleController {
         }else {
             return ResultUtils.ok(operations.get(Constans.ARTICLE_TOTAL_VIEWS));
         }
+    }
+
+    /**
+     * 获取开源库的总收录数
+     *
+     */
+    @ApiOperation(value = "获取开源库的总收录数", notes = "获取开源库的总收录数接口")
+    @Cacheable
+    @PostMapping("/getArticleTotals")
+    public Result<Integer> getArticleTotals(){
+        return ResultUtils.ok(articleRepository.findAllArticleTotals());
     }
 
     /**

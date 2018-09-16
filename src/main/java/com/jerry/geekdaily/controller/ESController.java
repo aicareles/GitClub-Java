@@ -3,7 +3,9 @@ package com.jerry.geekdaily.controller;
 import com.hankcs.hanlp.HanLP;
 import com.jerry.geekdaily.base.Result;
 import com.jerry.geekdaily.base.ResultUtils;
+import com.jerry.geekdaily.domain.Article;
 import com.jerry.geekdaily.domain.ESArticle;
+import com.jerry.geekdaily.repository.ArticleRepository;
 import com.jerry.geekdaily.repository.ESArticleSearchRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -48,20 +50,23 @@ public class ESController {
     @Autowired
     private ESArticleSearchRepository articleSearchRepository;
 
-//    @PostMapping("/deleteAllES")
-//    public boolean deleteAllES(){
-//        articleSearchRepository.deleteAll();
-//        return true;
-//    }
+    @Autowired
+    private ArticleRepository articleRepository;
 
-//    @PostMapping("/updateAllES")
-//    public boolean updateAllES(){
-//        List<Article> articles = articleRepository.findAll();
-//        articles.forEach(article -> {
-//            articleSearchRepository.save(new ESArticle(article));
-//        });
-//        return true;
-//    }
+    @PostMapping("/deleteAllES")
+    public boolean deleteAllES(){
+        articleSearchRepository.deleteAll();
+        return true;
+    }
+
+    @PostMapping("/updateAllES")
+    public boolean updateAllES(){
+        List<Article> articles = articleRepository.findAll();
+        articles.forEach(article -> {
+            articleSearchRepository.save(new ESArticle(article));
+        });
+        return true;
+    }
 
 //    //全文关键字搜索
 //    @RequestMapping("/query")
@@ -87,7 +92,7 @@ public class ESController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "当前页数", required = true, dataType = "int"),
             @ApiImplicitParam(name = "size", value = "返回的文章数量", required = true, dataType = "int"),
-            @ApiImplicitParam(name = "query", value = "关键字---标题、描述", required = true, dataType = "string")
+            @ApiImplicitParam(name = "query", value = "关键字---标签、标题、描述", required = true, dataType = "string")
     })
     @RequestMapping("/query")
     public Result<ESArticle> query(@RequestParam Integer page, @RequestParam Integer size, @RequestParam String query) {
@@ -97,6 +102,7 @@ public class ESController {
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
         queryBuilder.must()
                 .add(QueryBuilders.boolQuery()
+                        .should(QueryBuilders.matchQuery("tag", query))
                         .should(QueryBuilders.matchQuery("title", query))
                         .should(QueryBuilders.matchQuery("des", query)));
 

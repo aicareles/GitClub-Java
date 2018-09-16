@@ -12,6 +12,8 @@ public class UpdateArticleDTO implements Serializable {
 
     private String des;
 
+    private String tag;
+
     private String img_url;//上传的图片文件
 
     private String link;//源url
@@ -48,6 +50,14 @@ public class UpdateArticleDTO implements Serializable {
 
     public void setDes(String des) {
         this.des = des;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public String getImg_url() {

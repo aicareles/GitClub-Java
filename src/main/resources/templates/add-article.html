@@ -387,9 +387,9 @@ function uploadImg() {
             success: function(data){
                 //前端调用成功后，可以处理后端传回的json格式数据。
                 if(data.code == 0){
-                    var article_img = document.getElementById("article_img");
+                    var img_url = document.getElementById("img_url");
                     if(data.data["article_img"] != null){
-                        article_img.value = data.data["article_img"];
+                        img_url.value = data.data["article_img"];
                     }
                     window.alert("上传图片成功!");
                 }else {
