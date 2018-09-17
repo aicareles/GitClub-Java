@@ -1,8 +1,18 @@
 package com.jerry.geekdaily.config;
 
-public class Constans {
-    public static final String WECHAT_APP_ID = "wx5cd48edea47a1f48";//小程序app_id
-    public static final String WECHAT_SECRET = "f287022f6c86d348ef6db4ad5e93709b";//小程序secret
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-    public static final String ARTICLE_TOTAL_VIEWS = "article_total_views";//当天文章总阅读数
+public class Constans {
+
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RedisKey {
+        String ARTICLE_TOTAL_VIEWS = "article_total_views";//当天文章总阅读数
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface WeChat {
+        String WECHAT_APP_ID = "wx5cd48edea47a1f48";//小程序app_id
+        String WECHAT_SECRET = "f287022f6c86d348ef6db4ad5e93709b";//小程序secret
+    }
 }

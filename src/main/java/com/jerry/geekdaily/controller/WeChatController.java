@@ -103,8 +103,8 @@ public class WeChatController {
         String requestUrl = "https://api.weixin.qq.com/cgi-bin/token";
         StringBuffer requestUrlParam = new StringBuffer();
         requestUrlParam.append("grant_type" + "=" + "client_credential");
-        requestUrlParam.append("&" + "appid" + "=" + Constans.WECHAT_APP_ID);
-        requestUrlParam.append("&" + "secret" + "=" + Constans.WECHAT_SECRET);
+        requestUrlParam.append("&" + "appid" + "=" + Constans.WeChat.WECHAT_APP_ID);
+        requestUrlParam.append("&" + "secret" + "=" + Constans.WeChat.WECHAT_SECRET);
 
         //发送post请求读取调用微信接口获取openid用户唯一标识
         JSONObject jsonObject = JSON.parseObject(HttpUtils.sendGet(requestUrl, String.valueOf(requestUrlParam)));
@@ -122,8 +122,8 @@ public class WeChatController {
         String wxCode = code;
         String requestUrl = "https://api.weixin.qq.com/sns/jscode2session";
         Map<String, String> requestUrlParam = new HashMap<String, String>();
-        requestUrlParam.put("appid", Constans.WECHAT_APP_ID);//小程序appId
-        requestUrlParam.put("secret", Constans.WECHAT_SECRET);
+        requestUrlParam.put("appid", Constans.WeChat.WECHAT_APP_ID);//小程序appId
+        requestUrlParam.put("secret", Constans.WeChat.WECHAT_SECRET);
         requestUrlParam.put("js_code", wxCode);//小程序端返回的code
         requestUrlParam.put("grant_type", "authorization_code");//默认参数
 

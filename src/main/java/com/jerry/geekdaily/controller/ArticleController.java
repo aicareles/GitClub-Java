@@ -468,14 +468,14 @@ public class ArticleController {
         }
         //把当天的阅读数逐个添加到redis中
         ValueOperations<String, Integer> operations = redisTemplate.opsForValue();
-        boolean exists = redisTemplate.hasKey(Constans.ARTICLE_TOTAL_VIEWS);
+        boolean exists = redisTemplate.hasKey(Constans.RedisKey.ARTICLE_TOTAL_VIEWS);
         if(!exists){//当天第一次   赋值初始值为400-800的一个随机数
             int random = new Random().nextInt(400)+400;
-            operations.set(Constans.ARTICLE_TOTAL_VIEWS, random, 1, TimeUnit.DAYS);
+            operations.set(Constans.RedisKey.ARTICLE_TOTAL_VIEWS, random, 1, TimeUnit.DAYS);
         }else {
-            Integer views = operations.get(Constans.ARTICLE_TOTAL_VIEWS);
+            Integer views = operations.get(Constans.RedisKey.ARTICLE_TOTAL_VIEWS);
             int num = new Random().nextInt(2)+1;
-            operations.set(Constans.ARTICLE_TOTAL_VIEWS, views+num);
+            operations.set(Constans.RedisKey.ARTICLE_TOTAL_VIEWS, views+num);
         }
         article.setViews(article.getViews() + 1);
         articleRepository.saveAndFlush(article);
@@ -492,13 +492,13 @@ public class ArticleController {
     @PostMapping("/getArticleTotalViews")
     public Result<Integer> getArticleTotalViews(){
         ValueOperations<String, Integer> operations = redisTemplate.opsForValue();
-        boolean exists = redisTemplate.hasKey(Constans.ARTICLE_TOTAL_VIEWS);
+        boolean exists = redisTemplate.hasKey(Constans.RedisKey.ARTICLE_TOTAL_VIEWS);
         if(!exists){//当天还没有阅读数   赋值初始值为400-800的一个随机数
             int random = new Random().nextInt(400)+400;
-            operations.set(Constans.ARTICLE_TOTAL_VIEWS, random, 1, TimeUnit.DAYS);
+            operations.set(Constans.RedisKey.ARTICLE_TOTAL_VIEWS, random, 1, TimeUnit.DAYS);
             return ResultUtils.ok(random);
         }else {
-            return ResultUtils.ok(operations.get(Constans.ARTICLE_TOTAL_VIEWS));
+            return ResultUtils.ok(operations.get(Constans.RedisKey.ARTICLE_TOTAL_VIEWS));
         }
     }
 
