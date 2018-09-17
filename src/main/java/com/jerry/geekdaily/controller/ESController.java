@@ -50,23 +50,23 @@ public class ESController {
     @Autowired
     private ESArticleSearchRepository articleSearchRepository;
 
-    @Autowired
-    private ArticleRepository articleRepository;
+//    @Autowired
+//    private ArticleRepository articleRepository;
 
-    @PostMapping("/deleteAllES")
-    public boolean deleteAllES(){
-        articleSearchRepository.deleteAll();
-        return true;
-    }
+//    @PostMapping("/deleteAllES")
+//    public boolean deleteAllES(){
+//        articleSearchRepository.deleteAll();
+//        return true;
+//    }
 
-    @PostMapping("/updateAllES")
-    public boolean updateAllES(){
-        List<Article> articles = articleRepository.findAll();
-        articles.forEach(article -> {
-            articleSearchRepository.save(new ESArticle(article));
-        });
-        return true;
-    }
+//    @PostMapping("/updateAllES")
+//    public boolean updateAllES(){
+//        List<Article> articles = articleRepository.findAll();
+//        articles.forEach(article -> {
+//            articleSearchRepository.save(new ESArticle(article));
+//        });
+//        return true;
+//    }
 
 //    //全文关键字搜索
 //    @RequestMapping("/query")
