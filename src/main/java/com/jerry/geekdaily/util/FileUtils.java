@@ -1,5 +1,11 @@
 package com.jerry.geekdaily.util;
 
+import org.apache.http.HttpException;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+
 public class FileUtils {
 
     //字节大小，K,M,G
@@ -24,6 +30,18 @@ public class FileUtils {
         } else {
             return String.format("%d B", size);
         }
+    }
+
+    public static File multi2File(MultipartFile file){
+        File f = null;
+        try {
+            f=File.createTempFile("tmp", null);
+            file.transferTo(f);
+            f.deleteOnExit();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return f;
     }
 
 }

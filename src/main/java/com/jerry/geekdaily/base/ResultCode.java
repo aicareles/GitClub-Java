@@ -90,7 +90,17 @@ public enum ResultCode {
     /**
      * 上传图片或文章链接格式错误
      */
-    UPLOAD_LINK_ERROR(1018, "上传图片或文章链接格式错误");
+    UPLOAD_LINK_ERROR(1018, "上传图片或文章链接格式错误"),
+
+    /**
+     * 上传内容不能为空
+     */
+    UPLOAD_FILE_EMPTY(1019, "上传图片或文章链接格式错误"),
+
+    /**
+     * 上传内容最大不能超过10M
+     */
+    UPLOAD_FILE_LIMIT(1020, "上传内容最大不能超过10M");
 
     public int code;
     public String msg;

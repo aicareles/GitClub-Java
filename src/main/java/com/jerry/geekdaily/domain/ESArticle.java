@@ -13,6 +13,8 @@ public class ESArticle implements Serializable {
     @Id
     private Integer id;
 
+    private Integer article_id;
+
     private String title;
 
     private String des;
@@ -56,7 +58,7 @@ public class ESArticle implements Serializable {
     }
 
     public ESArticle(Article article) {
-        this.id = article.getArticle_id();
+        this.id = this.article_id = article.getArticle_id();
         this.title = article.getTitle();
         this.des = article.getDes();
         this.img_url = article.getImg_url();
@@ -80,6 +82,14 @@ public class ESArticle implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getArticle_id() {
+        return article_id;
+    }
+
+    public void setArticle_id(Integer article_id) {
+        this.article_id = article_id;
     }
 
     public String getTitle() {

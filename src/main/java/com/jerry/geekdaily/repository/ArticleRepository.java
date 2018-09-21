@@ -27,4 +27,7 @@ public interface ArticleRepository extends JpaRepository<Article,Integer> {
     @Query("select u from Article u where u.article_id in (:article_ids) order by u.date desc")
     List<Article> findArticlesByArticle_idIn(@Param("article_ids")List<Integer> article_ids);
 
+    @Query("select u from Article u where upper(u.category) = upper(:category)")
+    Page<Article> findAllByCategoryIgnoreCase(@Param("category")String category, Pageable pageable);
+
 }

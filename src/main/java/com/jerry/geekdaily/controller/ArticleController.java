@@ -12,9 +12,7 @@ import com.jerry.geekdaily.enums.AdminEnum;
 import com.jerry.geekdaily.enums.StarStatusEnum;
 import com.jerry.geekdaily.dto.UpdateArticleDTO;
 import com.jerry.geekdaily.repository.*;
-import com.jerry.geekdaily.util.BeanCopyUtil;
-import com.jerry.geekdaily.util.LinkUtils;
-import com.jerry.geekdaily.util.MarkdownUtils;
+import com.jerry.geekdaily.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -59,7 +57,6 @@ import java.util.concurrent.TimeUnit;
 public class ArticleController {
 
     private final static Logger logger = LoggerFactory.getLogger(ArticleController.class);
-    //    private final static String FILE_FOLDER = "http://47.104.93.195:8090/geekdaily/images/upload/";
     private final static String FILE_FOLDER = "https://502tech.com/geekdaily/images/upload/";
 
     @Autowired
@@ -81,6 +78,49 @@ public class ArticleController {
     @Autowired
     private RedisTemplate redisTemplate;
 
+//    @PostMapping("/trasform2OSS")
+//    public Result<Boolean> trasformImg2OSS(){
+//        File path = null;
+//        try {
+//            path = new File(ResourceUtils.getURL("classpath:").getPath());
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        if (!path.exists()) path = new File("");
+//        System.out.println("path:" + path.getAbsolutePath());
+//        //如果上传目录为/static/images/upload/，则可以如下获取：
+//        File upload = new File(path.getAbsolutePath(), "static/images/upload/");
+//        if (!upload.exists()) upload.mkdirs();
+//        System.out.println("upload url:" + upload.getAbsolutePath());
+//        File[] files = upload.listFiles();
+//
+//        //更新图片的url到oss  并把最新oss的图片地址保存到数据库
+//        List<Article> articles = articleRepository.findAll();
+//        articles.forEach(article -> {
+//            if (null != article){
+//                for (File file : files){
+//                    if(null != file){
+//                        if(null == article.getImg_url() || null == file.getName()){
+//                            continue;
+//                        }
+//                        if(article.getImg_url().contains(file.getName())){
+//                            //上传到oss
+//                            String fileType = file.getName().substring(file.getName().lastIndexOf(".")+1);
+//                            String url = OSSUploadUtil.uploadFile(file, fileType);
+//                            logger.info("上传到oss地址："+url);
+//                            //更新到服务器
+//                            article.setImg_url(url);
+//                            articleRepository.saveAndFlush(article);
+//                            //更新数据到引擎
+//                            articleSearchRepository.save(new ESArticle(article));
+//                        }
+//                    }
+//                }
+//            }
+//        });
+//        return ResultUtils.ok(true);
+//    }
+
     /**
      * 上传文章图片
      *
@@ -93,8 +133,15 @@ public class ArticleController {
     })
     @PostMapping("/uploadArticleImg")
     public Result<Map<String, String>> uploadArticleImg(@RequestParam(value = "article_img") MultipartFile file) {
+        if (file == null || file.isEmpty() || file.getSize() == 0) {
+            return ResultUtils.error(ResultCode.UPLOAD_FILE_EMPTY);
+        }
+        if (file.getSize() > 10 * 1024 * 1024) {
+            return ResultUtils.error(ResultCode.UPLOAD_FILE_LIMIT);
+        }
         Map<String, String> map = new HashMap<>();
-        map.put(file.getName(), uploadImg(file));
+        String fileType = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".")+1);
+        map.put(file.getName(), OSSUploadUtil.uploadFile(FileUtils.multi2File(file), fileType));
         return ResultUtils.ok(map);
     }
 
@@ -249,9 +296,30 @@ public class ArticleController {
     })
     @Cacheable
     @PostMapping("/getArticleList")
-    public Result<Article> getArticleList(@Param("page") Integer page,
+    public Result<Article> getArticleList(@RequestParam("page") Integer page,
                                           @RequestParam("size") Integer size) {
         Page<Article> pages = articleRepository.findAllReviewedArticles(PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
+        return ResultUtils.ok(pages.getContent());
+    }
+
+    /**
+     * 根据分类获取所有文章列表
+     *
+     * @param page 当前页数
+     * @param size 返回数量
+     * @param category 文章分类
+     * @return 当前页文章列表
+     */
+    @ApiOperation(value = "根据分类获取文章", notes = "根据分类获取文章接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "当前页", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "返回数量", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "category", value = "文章分类", required = true, dataType = "string")
+    })
+    @Cacheable
+    @PostMapping("/getArticleListByCategory")
+    public Result<Article> getArticleListByCategory(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestParam("category") String category){
+        Page<Article> pages = articleRepository.findAllByCategoryIgnoreCase(category, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
         return ResultUtils.ok(pages.getContent());
     }
 
