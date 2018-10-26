@@ -5,6 +5,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -16,12 +17,14 @@ public class Follow implements Serializable {
     private Integer id;
 
     //被关注者的用户id
+    @NotNull(message="被关注者ID不能为空！")
     private int userId;
     //被关注者的昵称
     private String nickName;
     //被关注者的头像
     private String avatar;
     //粉丝的用户id
+    @NotNull(message="关注者ID不能为空！")
     private int fansId;
     //粉丝的昵称
     private String fanNickName;
@@ -31,6 +34,7 @@ public class Follow implements Serializable {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;
     //当前关注状态   0为未关注  1为已关注
+    @NotNull(message="关注状态不能为空！")
     private int status;
 
     public Follow(){}

@@ -15,4 +15,10 @@ public class Constans {
         String WECHAT_APP_ID = "wx5cd48edea47a1f48";//小程序app_id
         String WECHAT_SECRET = "f287022f6c86d348ef6db4ad5e93709b";//小程序secret
     }
+
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface GitHub {
+        String BASE_GITHUB_URL = "https://api.github.com";
+        String REPOS = "/repos/";//仓库
+    }
 }

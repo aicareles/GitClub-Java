@@ -11,15 +11,17 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableCaching
 @EnableAsync
+@EnableScheduling
 @SpringBootApplication
-public class FilemanagerApplication {
+public class GeekDailyApplication {
 
     public static void main(String[] args) {
         System.setProperty("es.set.netty.runtime.available.processors", "false");
-        SpringApplication.run(FilemanagerApplication.class, args);
+        SpringApplication.run(GeekDailyApplication.class, args);
     }
 
     //Tomcat large file upload connection reset
@@ -63,7 +65,5 @@ public class FilemanagerApplication {
         connector.setRedirectPort(443); // application.properties中配置的https端口
         return connector;
     }
-
-
 
 }

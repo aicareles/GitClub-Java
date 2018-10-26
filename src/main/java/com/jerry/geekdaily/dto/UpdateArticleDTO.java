@@ -23,6 +23,8 @@ public class UpdateArticleDTO implements Serializable {
 
     private String category;//文章分类（Android、iOS、Java等）
 
+    private int child_category;//文章子分类(开源库0、资讯1、资料2等)
+
     private int rank;//文章适合等级（0所有人、1初学、2进阶）
 
     public UpdateArticleDTO() {
@@ -90,6 +92,14 @@ public class UpdateArticleDTO implements Serializable {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public int getChild_category() {
+        return child_category;
+    }
+
+    public void setChild_category(int child_category) {
+        this.child_category = child_category;
     }
 
     public int getRank() {

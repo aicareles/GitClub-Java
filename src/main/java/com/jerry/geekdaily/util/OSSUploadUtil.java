@@ -4,7 +4,7 @@ import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.*;
-import com.jerry.geekdaily.OSSConfig;
+import com.jerry.geekdaily.config.OSSConfig;
 
 import java.io.File;
 import java.io.FileInputStream;

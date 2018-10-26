@@ -2,6 +2,7 @@ package com.jerry.geekdaily.controller;
 
 import com.jerry.geekdaily.domain.Article;
 import com.jerry.geekdaily.repository.ArticleRepository;
+import com.jerry.geekdaily.service.ArticleService;
 import com.jerry.geekdaily.util.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class HomeController {
     private final static Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     @Autowired
-    private ArticleRepository articleRepository;
+    private ArticleService articleService;
 
     /**
      * 查看主页的web页面
@@ -71,7 +72,7 @@ public class HomeController {
         if(request.getParameter("page") != null){
             page = Integer.parseInt(request.getParameter("page"));
         }
-        Page<Article> pages = articleRepository.findAll(PageRequest.of(page, 15, new Sort(Sort.Direction.DESC, "date")));
+        Page<Article> pages = articleService.findAllArticles(PageRequest.of(page, 15, new Sort(Sort.Direction.DESC, "date")));
         ModelAndView view = new ModelAndView("article");
         view.addObject("articleList", pages.getContent());
         view.addObject("pageCount", pages.getTotalPages());
@@ -86,7 +87,7 @@ public class HomeController {
 
     @GetMapping(value = ("/webUpdateArticle"))
     public ModelAndView updateArticle(@RequestParam int article_id) {
-        Article article = articleRepository.findArticleByArticle_id(article_id);
+        Article article = articleService.findArticleByArticleId(article_id);
         ModelAndView view = new ModelAndView("update-article");
         view.addObject("article", article);
         return view;

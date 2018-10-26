@@ -6,18 +6,27 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class MarkdownUtils {
-    private final static String BASE_URL = "https://raw.githubusercontent.com";
+    private final static String BASE_URL = "https://raw.githubusercontent.com/";
     private final static String SUFFIX = "/master/README.md";
-    private final static String GITHUB_NAME = "github.com";
-    private final static String GITHUB_URL = "https://github.com";
+    private final static String GITHUB_URL = "https://github.com/";
+
+    //根据github地址获取对应的仓库名  如通过"https://github.com/Alex-Jerry/Android-BLE"  获取：Alex-Jerry/Android-BLE"
+    public static String getRepositoryName(String link){
+        String repositoryName = "";
+        if(link.contains(GITHUB_URL)){
+            repositoryName = link.replaceAll(" ","")
+                    .substring(GITHUB_URL.length());//如：Alex-Jerry/Android-BLE
+        }
+        return repositoryName;
+    }
 
     //根据md的网络地址获取html文本
     public static String getMdContent(String link) {//如："https://github.com/Alex-Jerry/Android-BLE"
         //最终拼接成：https://raw.githubusercontent.com/Alex-Jerry/Android-BLE/master/README.md
         int HttpResult; // 服务器返回的状态
         String md_content = "";
-        if(link.contains(GITHUB_NAME)){//github地址  开始拼接
-            String github_name = link.replaceAll(" ","").substring(GITHUB_URL.length());//如：/Alex-Jerry/Android-BLE
+        if(link.contains(GITHUB_URL)){//github地址  开始拼接
+            String github_name = link.replaceAll(" ","").substring(GITHUB_URL.length());//如：Alex-Jerry/Android-BLE
             try
             {
                 URL url =new URL(BASE_URL+github_name+SUFFIX); // 创建URL

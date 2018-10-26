@@ -117,16 +117,22 @@
                         <div class="add-article-box">
                             <h2 class="add-article-box-title"><span>描述</span></h2>
                             <div class="add-article-box-content">
-                                <textarea class="form-control" id="des" name="des" autocomplete="off"></textarea>
-                                <span class="prompt-text">描述是可选的手工创建的内容总结，并可以在网页描述中使用</span>
+                                <textarea style="height: 120px" class="form-control" id="des" name="des" autocomplete="off"></textarea>
+                                <!--<span class="prompt-text">描述是可选的手工创建的内容总结，并可以在网页描述中使用</span>-->
                             </div>
                         </div>
                         <div class="add-article-box">
                             <h2 class="add-article-box-title"><span>分类</span></h2>
+                            <!--<div class="add-article-box-content">-->
+                                <!--<input type="text" class="form-control" placeholder="请输入分类" id="category" name="category"-->
+                                       <!--value="Android" required autocomplete="off" disabled="disabled">-->
+                                <!--<span class="prompt-text">如Android、Java等。</span>-->
+                            <!--</div>-->
                             <div class="add-article-box-content">
-                                <input type="text" class="form-control" placeholder="请输入分类" id="category" name="category"
-                                       value="Android" required autocomplete="off" disabled="disabled">
-                                <span class="prompt-text">如Android、Java等。</span>
+                                <input id="r_category1" type="radio" value="Android" name="category" checked="checked">Android</input>
+                                <input id="r_category2" type="radio" value="iOS" name="category">iOS</input>
+                                <input id="r_category3" type="radio" value="前端" name="category">前端</input>
+                                <!--<input id="r_category4" type="radio" value="其他" name="category">其他</input>-->
                             </div>
                         </div>
                         <div class="add-article-box">
@@ -145,7 +151,20 @@
                             <div class="add-article-box-content">
                                 <input type="text" class="form-control" placeholder="请输入文章链接" id="link" name="link"
                                        required autocomplete="off" onchange="isValidURL(this.value)"/>
-                                <span class="prompt-text">文章链接可选择网页链接。</span>
+                                <!--<span class="prompt-text">文章链接可选择网页链接。</span>-->
+                            </div>
+                        </div>
+
+                        <div class="add-article-box">
+                            <h2 class="add-article-box-title"><span>标题图片</span></h2>
+                            <div class="add-article-box-content">
+                                <!--<input type="file" class="form-control" placeholder="点击按钮选择图片" id="article_img" accept="image/*"-->
+                                <!--name="article_img" autocomplete="off">-->
+                                <input type="text" class="form-control" placeholder="请输入文章图片链接" id="img_url" name="img_url"
+                                       required autocomplete="off" onchange="isValidURL(this.value)">
+                                <h2 class="add-article-box-title"><span>或者</span></h2>
+                                <input type="file" placeholder="点击按钮选择图片" id="upload_img" name="upload_img" accept="image/*"/>
+                                <input type="button" class="form-control" value="点击上传" onclick="uploadImg()"/>
                             </div>
                         </div>
 
@@ -160,18 +179,18 @@
                     </div>
                     <div class="col-md-3">
                         <h1 class="page-header">操作</h1>
-                        <div class="add-article-box">
-                            <h2 class="add-article-box-title"><span>标题图片</span></h2>
-                            <div class="add-article-box-content">
-                                <!--<input type="file" class="form-control" placeholder="点击按钮选择图片" id="article_img" accept="image/*"-->
-                                       <!--name="article_img" autocomplete="off">-->
-                                <input type="text" class="form-control" placeholder="请输入文章图片链接" id="img_url" name="img_url"
-                                       required autocomplete="off" onchange="isValidURL(this.value)">
-                                <h2 class="add-article-box-title"><span>或者</span></h2>
-                                <input type="file" placeholder="点击按钮选择图片" id="upload_img" name="upload_img" accept="image/*"/>
-                                <input type="button" class="form-control" value="点击上传" onclick="uploadImg()"/>
-                            </div>
-                        </div>
+                        <!--<div class="add-article-box">-->
+                            <!--<h2 class="add-article-box-title"><span>标题图片</span></h2>-->
+                            <!--<div class="add-article-box-content">-->
+                                <!--&lt;!&ndash;<input type="file" class="form-control" placeholder="点击按钮选择图片" id="article_img" accept="image/*"&ndash;&gt;-->
+                                       <!--&lt;!&ndash;name="article_img" autocomplete="off">&ndash;&gt;-->
+                                <!--<input type="text" class="form-control" placeholder="请输入文章图片链接" id="img_url" name="img_url"-->
+                                       <!--required autocomplete="off" onchange="isValidURL(this.value)">-->
+                                <!--<h2 class="add-article-box-title"><span>或者</span></h2>-->
+                                <!--<input type="file" placeholder="点击按钮选择图片" id="upload_img" name="upload_img" accept="image/*"/>-->
+                                <!--<input type="button" class="form-control" value="点击上传" onclick="uploadImg()"/>-->
+                            <!--</div>-->
+                        <!--</div>-->
                         <div class="add-article-box">
                             <h2 class="add-article-box-title"><span>发布</span></h2>
                             <div class="add-article-box-content">
@@ -393,7 +412,7 @@ function uploadImg() {
                     }
                     window.alert("上传图片成功!");
                 }else {
-                    window.alert("sss");
+                    window.alert("上传出错了!"+data.toString());
                 }
             },
             error:function (data) {
@@ -409,7 +428,8 @@ function uploadArticle() {
     var des = document.getElementById("des").value;
     var userId = getCookie("geek_userId");
     var contributor_id = parseInt(userId);
-    var category = document.getElementById("category").value;
+    // var category = document.getElementById("category").value;
+    var category = $("input[name='category']:checked").val();
     var rank = parseInt($("input[name='rank']:checked").val());
     var link = document.getElementById("link").value;
     var img_url = document.getElementById("img_url").value;

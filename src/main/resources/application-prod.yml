@@ -58,5 +58,12 @@ server:
 #      key-store-password: 214828842760447
 #      keyStoreType: PKCS12
 
+#  use-forward-headers: true
+#  tomcat:
+#    remote-ip-header: x-forwarded-for
+#    protocol-header: x-forwarded-proto
+#    port-header: X-Forwarded-Port
+#    #其它设置是让Tomcat去Http头信息去获取协议信息，而不是从HttpServletRequest
+
   servlet:
     context-path: /geekdaily

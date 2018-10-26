@@ -1,14 +1,11 @@
 package com.jerry.geekdaily.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.jerry.geekdaily.base.Result;
 import com.jerry.geekdaily.base.ResultCode;
 import com.jerry.geekdaily.base.ResultUtils;
 import com.jerry.geekdaily.domain.User;
-import com.jerry.geekdaily.repository.UserRepository;
+import com.jerry.geekdaily.service.UserService;
 import com.jerry.geekdaily.util.CookieUtils;
-import com.jerry.geekdaily.util.HttpUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -17,13 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Api(value = "UserController", description = "用户管理相关接口")
 @RestController
@@ -32,7 +29,7 @@ public class UserController {
     private final static Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     /**
      * 添加用户   （相当于注册）
@@ -67,7 +64,7 @@ public class UserController {
         user.setGender(gender);
         user.setCity(city);
         user.setDate(new Date());
-        userRepository.save(user);
+        userService.register(user);
         logger.info("注册成功!");
         return ResultUtils.ok(user);
     }
@@ -87,7 +84,7 @@ public class UserController {
     public Result<User> login(@RequestParam("userName")String userName, @RequestParam("password")String password,
                               HttpServletRequest request, HttpServletResponse response){
         if(!StringUtils.isEmpty(userName) && !StringUtils.isEmpty(password)){
-            User user = userRepository.findUserByNick_nameAndPwd(userName, password);
+            User user = userService.login(userName, password);
             if(user != null){
                 //保存到cookie中
                 CookieUtils.addCookie(user.getUser_id()+"", user.getNick_name(), response, request);

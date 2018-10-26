@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -20,15 +22,19 @@ public class Comment implements Serializable {
     private Integer id;
 
     //文章id
+    @NotNull(message="文章ID不能为空！")
     private int article_id;
 
     //文章type
+    @NotNull(message="评论类型不能为空！")
     private int article_type;
 
     //评论内容
+    @NotEmpty(message="评论内容不能为空！")
     private String content;
 
     //评论用户id
+    @NotNull(message = "评论用户ID不能为空！")
     private int from_uid;
 
     //评论目标用户id
@@ -50,19 +56,6 @@ public class Comment implements Serializable {
     private String to_avatar;
 
     public Comment() {
-    }
-
-    public Comment(int article_id, int article_type, String content, int from_uid, int to_uid, Date date, String from_nick, String from_avatar, String to_nick, String to_avatar) {
-        this.article_id = article_id;
-        this.article_type = article_type;
-        this.content = content;
-        this.from_uid = from_uid;
-        this.to_uid = to_uid;
-        this.date = date;
-        this.from_nick = from_nick;
-        this.from_avatar = from_avatar;
-        this.to_nick = to_nick;
-        this.to_avatar = to_avatar;
     }
 
     public Integer getId() {

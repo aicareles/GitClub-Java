@@ -114,21 +114,27 @@
               <h2 class="add-article-box-title"><span>描述</span></h2>
               <div class="add-article-box-content">
               	<textarea class="form-control" id="des" name="des" th:field="*{des}" autocomplete="off"></textarea>
-                <span class="prompt-text">描述是可选的手工创建的内容总结，并可以在网页描述中使用</span>
+                <!--<span class="prompt-text">描述是可选的手工创建的内容总结，并可以在网页描述中使用</span>-->
               </div>
             </div>
             <div class="add-article-box">
               <h2 class="add-article-box-title"><span>分类</span></h2>
+              <!--<div class="add-article-box-content">-->
+                <!--<input type="text" class="form-control" placeholder="请输入关键字"-->
+                       <!--id="category" name="category" th:field="*{category}" autocomplete="off" disabled="disabled">-->
+                <!--<span class="prompt-text">如Android、Java等。</span>-->
+              <!--</div>-->
               <div class="add-article-box-content">
-                <input type="text" class="form-control" placeholder="请输入关键字"
-                       id="category" name="category" th:field="*{category}" autocomplete="off" disabled="disabled">
-                <span class="prompt-text">如Android、Java等。</span>
+                <input id="r_category1" type="radio" value="Android" name="category">Android</input>
+                <input id="r_category2" type="radio" value="iOS" name="category">iOS</input>
+                <input id="r_category3" type="radio" value="前端" name="category">前端</input>
+                <!--<input id="r_category4" type="radio" value="其他" name="category">其他</input>-->
               </div>
             </div>
             <div class="add-article-box">
               <h2 class="add-article-box-title"><span>适合等级</span></h2>
               <div class="add-article-box-content">
-                <input id="r1" type="radio" value="0" name="rank" checked="checked">所有人</input>
+                <input id="r1" type="radio" value="0" name="rank">所有人</input>
                 <input id="r2" type="radio" value="1" name="rank">初学</input>
                 <input id="r3" type="radio" value="2" name="rank">进阶</input>
               </div>
@@ -140,7 +146,15 @@
               <h2 class="add-article-box-title"><span>文章链接</span></h2>
               <div class="add-article-box-content">
                 <input type="text" class="form-control" placeholder="请输入文章链接" id="link" name="link" th:field="*{link}" autocomplete="off">
-                <span class="prompt-text">文章链接可选择网页链接。</span>
+                <!--<span class="prompt-text">文章链接可选择网页链接。</span>-->
+              </div>
+            </div>
+
+            <div class="add-article-box">
+              <h2 class="add-article-box-title"><span>标题图片</span></h2>
+              <div class="add-article-box-content">
+                <input type="text" class="form-control" placeholder="请输入文章图片链接" id="img_url" name="img_url" th:field="*{img_url}"
+                       required autocomplete="off">
               </div>
             </div>
 
@@ -154,18 +168,18 @@
           </div>
           <div class="col-md-3">
             <h1 class="page-header">操作</h1>
-            <div class="add-article-box">
-              <h2 class="add-article-box-title"><span>标题图片</span></h2>
-              <div class="add-article-box-content">
-                <!--<input type="file" class="form-control" placeholder="点击按钮选择图片" id="article_img" accept="image/*"-->
-                       <!--name="article_img" autocomplete="off">-->
-                  <input type="text" class="form-control" placeholder="请输入文章图片链接" id="img_url" name="img_url" th:field="*{img_url}"
-                         required autocomplete="off">
-              </div>
-              <!--<div class="add-article-box-footer">-->
-                <!--<button class="btn btn-default" type="button" ID="upImage">选择</button>-->
+            <!--<div class="add-article-box">-->
+              <!--<h2 class="add-article-box-title"><span>标题图片</span></h2>-->
+              <!--<div class="add-article-box-content">-->
+                <!--&lt;!&ndash;<input type="file" class="form-control" placeholder="点击按钮选择图片" id="article_img" accept="image/*"&ndash;&gt;-->
+                       <!--&lt;!&ndash;name="article_img" autocomplete="off">&ndash;&gt;-->
+                  <!--<input type="text" class="form-control" placeholder="请输入文章图片链接" id="img_url" name="img_url" th:field="*{img_url}"-->
+                         <!--required autocomplete="off">-->
               <!--</div>-->
-            </div>
+              <!--&lt;!&ndash;<div class="add-article-box-footer">&ndash;&gt;-->
+                <!--&lt;!&ndash;<button class="btn btn-default" type="button" ID="upImage">选择</button>&ndash;&gt;-->
+              <!--&lt;!&ndash;</div>&ndash;&gt;-->
+            <!--</div>-->
             <div class="add-article-box">
               <h2 class="add-article-box-title"><span>发布</span></h2>
               <div class="add-article-box-content">
@@ -328,13 +342,25 @@
 <!--<script src="lib/ueditor/ueditor.all.min.js"> </script> -->
 <!--<script src="lib/ueditor/lang/zh-cn/zh-cn.js"></script>  -->
 <!--<script id="uploadEditor" type="text/plain" style="display:none;"></script>-->
+<input id="category" type="hidden" th:value="${article.category}">
+<input id="rank" type="hidden" th:value="${article.rank}">
 <script type="text/javascript">
 
 window.onload = function () {
-    var editor_id = document.getElementById("editor_id");
-    //从cookie中取出 contributor和contributor_id的值
-    var userId = getCookie("geek_userId");
-    editor_id.value = parseInt(userId);
+    var category = document.getElementById("category").value;
+    var radio_category = document.getElementsByName("category");
+    for (var i=0; i<radio_category.length; i++){
+        if(category == radio_category[i].value){
+            radio_category[i].checked = true;
+        }
+    }
+    var rank = document.getElementById("rank").value;
+    var radio_rank = document.getElementsByName("rank");
+    for (var i=0; i<radio_rank.length; i++){
+        if(rank == radio_rank[i].value){
+            radio_rank[i].checked = true;
+        }
+    }
 };
 
 //获取cookie的值
@@ -351,7 +377,8 @@ function updateArticle(article_id) {
     var title = document.getElementById("title").value;
     var des = document.getElementById("des").value;
     var contributor_id = parseInt(getCookie("geek_userId"));
-    var category = document.getElementById("category").value;
+    // var category = document.getElementById("category").value;
+    var category = $("input[name='category']:checked").val();
     var rank = parseInt($("input[name='rank']:checked").val());
     var link = document.getElementById("link").value;
     var img_url = document.getElementById("img_url").value;

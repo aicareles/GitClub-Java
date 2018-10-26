@@ -116,6 +116,14 @@
             <version>portable-1.6.8</version>
         </dependency>
 
+        <!--GitHub接口相关-->
+        <dependency>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>github-api</artifactId>
+            <version>1.94</version>
+        </dependency>
+
+
         <dependency>
             <groupId>com.aliyun.oss</groupId>
             <artifactId>aliyun-sdk-oss</artifactId>

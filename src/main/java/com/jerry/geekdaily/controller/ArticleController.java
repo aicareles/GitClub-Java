@@ -8,10 +8,14 @@ import com.jerry.geekdaily.domain.Article;
 import com.jerry.geekdaily.domain.ESArticle;
 import com.jerry.geekdaily.domain.Stars;
 import com.jerry.geekdaily.domain.User;
+import com.jerry.geekdaily.dto.UpdateArticleDTO;
 import com.jerry.geekdaily.enums.AdminEnum;
 import com.jerry.geekdaily.enums.StarStatusEnum;
-import com.jerry.geekdaily.dto.UpdateArticleDTO;
-import com.jerry.geekdaily.repository.*;
+import com.jerry.geekdaily.repository.ESArticleSearchRepository;
+import com.jerry.geekdaily.service.ArticleService;
+import com.jerry.geekdaily.service.CommentService;
+import com.jerry.geekdaily.service.StarsService;
+import com.jerry.geekdaily.service.UserService;
 import com.jerry.geekdaily.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -28,9 +32,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.data.repository.query.Param;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,14 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -57,19 +50,18 @@ import java.util.concurrent.TimeUnit;
 public class ArticleController {
 
     private final static Logger logger = LoggerFactory.getLogger(ArticleController.class);
-    private final static String FILE_FOLDER = "https://502tech.com/geekdaily/images/upload/";
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
-    private ArticleRepository articleRepository;
+    private ArticleService articleService;
 
     @Autowired
-    private StarsRepository starsRepository;
+    private StarsService starsService;
 
     @Autowired
-    private CommentRepository commentRepository;
+    private CommentService commentService;
 
     //全文搜索引擎   数据库数据改变时伴随着  搜索引擎中的数据的增删改查
     @Autowired
@@ -121,6 +113,23 @@ public class ArticleController {
 //        return ResultUtils.ok(true);
 //    }
 
+//    @PostMapping("/updateArticleChildCategory")
+//    public Result<Boolean> updateArticleChildCategory(){
+//        List<Article> articles = articleRepository.findAll();
+//        List<Article> tempArticles = new ArrayList<>();
+//        List<ESArticle> tempESArticles = new ArrayList<>();
+//        articles.forEach(article -> {
+//            if(!article.getLink().contains("https://github.com")){
+//                article.setChild_category(1);
+//                tempArticles.add(article);
+//                tempESArticles.add(new ESArticle(article));
+//            }
+//        });
+//        articleRepository.saveAll(tempArticles);
+//        articleSearchRepository.saveAll(tempESArticles);
+//        return ResultUtils.ok(true);
+//    }
+
     /**
      * 上传文章图片
      *
@@ -158,6 +167,7 @@ public class ArticleController {
             @ApiImplicitParam(name = "tag", value = "文章标签", required = false, dataType = "string"),
             @ApiImplicitParam(name = "contributor_id", value = "贡献者ID", required = true, dataType = "int"),
             @ApiImplicitParam(name = "category", value = "文章分类", required = true, dataType = "string"),
+            @ApiImplicitParam(name = "child_category", value = "文章子分类", required = false, dataType = "int"),
             @ApiImplicitParam(name = "rank", value = "文章等级", required = true, dataType = "int"),
             @ApiImplicitParam(name = "link", value = "文章链接", required = true, dataType = "string"),
             @ApiImplicitParam(name = "img_url", value = "上传文章图片的url", required = true, dataType = "string")
@@ -172,10 +182,10 @@ public class ArticleController {
             return ResultUtils.error(ResultCode.UPLOAD_LINK_ERROR);
         }
         articleInfo.setDate(new Date());
-        articleInfo.setMd_content(getMdContent(articleInfo.getLink()));
+        articleInfo.setMd_content(MarkdownUtils.getMdContent(articleInfo.getLink()));
         articleInfo.setWrap_link(LinkUtils.gererateShortUrl(articleInfo.getLink()));
         //判断是否为管理员   若为管理员则直接通过审核
-        User user = userRepository.findUserByUser_id(articleInfo.getContributor_id());
+        User user = userService.findUserByUserId(articleInfo.getContributor_id());
         articleInfo.setUser(user);
         if (null != user) {
             articleInfo.setReview_status(user.getAdmin_status() == AdminEnum.ADMIN.getAdmin_status() ? 1 : 0);
@@ -201,7 +211,7 @@ public class ArticleController {
         }else {
             return ResultUtils.error(ResultCode.INVALID_USER);
         }
-        articleRepository.save(articleInfo);
+        articleService.saveArticle(articleInfo);
         return ResultUtils.ok(articleInfo);
     }
 
@@ -215,6 +225,7 @@ public class ArticleController {
             @ApiImplicitParam(name = "title", value = "文章标题", required = false, dataType = "string"),
             @ApiImplicitParam(name = "des", value = "文章描述", required = false, dataType = "string"),
             @ApiImplicitParam(name = "category", value = "文章分类", required = false, dataType = "string"),
+            @ApiImplicitParam(name = "child_category", value = "文章子分类", required = false, dataType = "int"),
             @ApiImplicitParam(name = "rank", value = "文章等级", required = false, dataType = "int"),
             @ApiImplicitParam(name = "link", value = "文章链接", required = false, dataType = "string"),
             @ApiImplicitParam(name = "img_url", value = "文章图片url", required = false, dataType = "string")
@@ -225,16 +236,23 @@ public class ArticleController {
         if (bindingResult.hasErrors()){
             return ResultUtils.error(bindingResult.getFieldError().getDefaultMessage());
         }
-        if(!LinkUtils.verifyURL(articleInfo.getLink()) || !LinkUtils.verifyURL(articleInfo.getImg_url())){
-            return ResultUtils.error(ResultCode.UPLOAD_LINK_ERROR);
+        if(!StringUtils.isEmpty(articleInfo.getLink())){
+            if(!LinkUtils.verifyURL(articleInfo.getLink())){
+                return ResultUtils.error(ResultCode.UPLOAD_LINK_ERROR);
+            }
+        }
+        if(!StringUtils.isEmpty(articleInfo.getImg_url())){
+            if(!LinkUtils.verifyURL(articleInfo.getImg_url())){
+                return ResultUtils.error(ResultCode.UPLOAD_LINK_ERROR);
+            }
         }
         //先查询该文章
-        Article article = articleRepository.findArticleByArticle_id(articleInfo.getArticle_id());
+        Article article = articleService.findArticleByArticleId(articleInfo.getArticle_id());
         if (StringUtils.isEmpty(article)) {
             return ResultUtils.error(ResultCode.NO_FIND_ARTICLE);
         }
         //判断是否为管理员   若为管理员则直接通过审核
-        User user = userRepository.findUserByUser_id(articleInfo.getContributor_id());
+        User user = userService.findUserByUserId(articleInfo.getContributor_id());
         if (null != user) {
             if (user.getAdmin_status() != AdminEnum.ADMIN.getAdmin_status() && articleInfo.getContributor_id() != article.getContributor_id()) {
                 return ResultUtils.error(ResultCode.NO_EDIT_PERMITION);
@@ -244,17 +262,14 @@ public class ArticleController {
         }else {
             return ResultUtils.error(ResultCode.INVALID_USER);
         }
-        //赋值copy到查询到的文章
         BeanCopyUtil.beanCopyWithIngore(articleInfo, article, "contributor_id");
-        articleRepository.saveAndFlush(article);
-        //更新数据到引擎
+        articleService.saveArticle(article);
         articleSearchRepository.save(new ESArticle(article));
         return ResultUtils.ok(article);
     }
 
     /**
      * 删除文章
-     *
      * @param article_id
      * @return
      */
@@ -268,16 +283,14 @@ public class ArticleController {
         if (StringUtils.isEmpty(article_id)) {
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
         }
-        Article article = articleRepository.findArticleByArticle_id(article_id);
+        Article article = articleService.findArticleByArticleId(article_id);
         if (StringUtils.isEmpty(article)) {
             return ResultUtils.error(ResultCode.NO_FIND_ARTICLE);
         }
-        articleRepository.deleteById(article_id);
+        articleService.deleteById(article_id);
         //删除中间表stars中的article_id的所有数据
-        starsRepository.deleteAllByArticle_id(article_id);
-        //删除评论表中的所有关于该文章的评论
-        commentRepository.deleteAllByArticle_id(article_id);
-        //更新数据到引擎
+        starsService.deleteByArticleId(article_id);
+        commentService.deleteAllByArticleId(article_id);
         articleSearchRepository.deleteById(article_id);
         return ResultUtils.ok("删除文章成功");
     }
@@ -298,7 +311,7 @@ public class ArticleController {
     @PostMapping("/getArticleList")
     public Result<Article> getArticleList(@RequestParam("page") Integer page,
                                           @RequestParam("size") Integer size) {
-        Page<Article> pages = articleRepository.findAllReviewedArticles(PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
+        Page<Article> pages = articleService.findAllReviewedArticles(PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
         return ResultUtils.ok(pages.getContent());
     }
 
@@ -319,7 +332,7 @@ public class ArticleController {
     @Cacheable
     @PostMapping("/getArticleListByCategory")
     public Result<Article> getArticleListByCategory(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestParam("category") String category){
-        Page<Article> pages = articleRepository.findAllByCategoryIgnoreCase(category, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
+        Page<Article> pages = articleService.findAllByCategory(category, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
         return ResultUtils.ok(pages.getContent());
     }
 
@@ -344,13 +357,12 @@ public class ArticleController {
                                      @RequestParam("type") int type, @RequestParam("status") int status) {
         //先查看该用户是否已经点赞/反赞，如果没有点赞/反赞 则增加一条记录，如果已经点赞/反赞，查看点赞/反赞的状态status
         //如果该值为0  若点赞，则设置为1，若反赞，则设置为2     取消点赞/反赞，则设置为0
-        Stars starts = starsRepository.findByUser_idAndArticle_id(user_id, article_id);
-        Optional<Article> optional = articleRepository.findById(article_id);
+        Stars starts = starsService.findByUserIdAndArticleId(user_id, article_id);
+        Article article = articleService.findArticleByArticleId(article_id);
         String msg = "操作成功!";
-        if(!optional.isPresent()){
+        if(article == null){
             return ResultUtils.error("文章ID不存在!");
         }
-        Article article = optional.get();
         if(starts == null){
             //不存在   插入点赞/反赞
             starts = new Stars();
@@ -404,8 +416,8 @@ public class ArticleController {
                 }
             }
         }
-        starsRepository.saveAndFlush(starts);
-        articleRepository.saveAndFlush(article);
+        starsService.saveStar(starts);
+        articleService.saveArticle(article);
         //更新数据到引擎
         articleSearchRepository.save(new ESArticle(article));
         return ResultUtils.ok(msg);
@@ -428,12 +440,12 @@ public class ArticleController {
     @Cacheable
     @PostMapping("/getArticleStarers")
     public Result<User> getArticleStarers(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestParam("article_id") int article_id) {
-        Page<Stars> pages = starsRepository.findStarsByArticle_id(article_id, PageRequest.of(page,size, new Sort(Sort.Direction.DESC, "date")));//
+        Page<Stars> pages = starsService.findStarsByArticleId(article_id, PageRequest.of(page,size, new Sort(Sort.Direction.DESC, "date")));//
         List<User> users = new ArrayList<>();
         if(pages.getContent().size() > 0){
             List<Integer> user_ids = new ArrayList<>();
             pages.getContent().forEach(stars -> user_ids.add(stars.getUser_id()));
-            users = userRepository.findUsersByUser_idIn(user_ids);
+            users = userService.findUsersByUserIdIn(user_ids);
         }
         return ResultUtils.ok(users);
     }
@@ -455,16 +467,16 @@ public class ArticleController {
     @Cacheable
     @PostMapping("/getMyStarArticles")
     public Result<Article> getMyStarArticles(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestParam("user_id") int user_id) {
-        User user = userRepository.findUserByUser_id(user_id);
+        User user = userService.findUserByUserId(user_id);
         if (StringUtils.isEmpty(user)) {
             return ResultUtils.error(ResultCode.INVALID_USER);
         }
-        Page<Stars> pages = starsRepository.findStarsByUser_id(user_id, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
+        Page<Stars> pages = starsService.findStarsByUserId(user_id, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
         List<Article> articles = new ArrayList<>();
         if(pages.getContent().size() > 0){
             List<Integer> article_ids = new ArrayList<>();
             pages.getContent().forEach(stars -> article_ids.add(stars.getArticle_id()));
-            articles = articleRepository.findArticlesByArticle_idIn(article_ids);
+            articles = articleService.findArticlesByArticleIdIn(article_ids);
         }
         return ResultUtils.ok(articles);
     }
@@ -486,11 +498,11 @@ public class ArticleController {
     @Cacheable
     @PostMapping("/getMyContributeArticles")
     public Result<Article> getMyContributeArticles(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestParam("user_id") int user_id) {
-        User user = userRepository.findUserByUser_id(user_id);
+        User user = userService.findUserByUserId(user_id);
         if (StringUtils.isEmpty(user)) {
             return ResultUtils.error(ResultCode.INVALID_USER);
         }
-        Page<Article> pages = articleRepository.findAllByContributor_id(user_id, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
+        Page<Article> pages = articleService.findAllByContributorId(user_id, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
         List<Article> articleList = pages.getContent();
         return ResultUtils.ok(articleList);
     }
@@ -509,7 +521,7 @@ public class ArticleController {
     @PostMapping("/getStarStatus")
     public Result getStarStatus(@RequestParam int user_id, int article_id){
         //获取我的点赞文章列表
-        Stars star = starsRepository.findByUser_idAndArticle_id(user_id, article_id);
+        Stars star = starsService.findByUserIdAndArticleId(user_id, article_id);
         if(star != null){
             return ResultUtils.ok(star.getStatus());
         }
@@ -530,7 +542,7 @@ public class ArticleController {
     public Result<Article> viewArticle(@RequestParam("article_id") int article_id) {
         //@RequestParam(value = "user_id", required = false)int user_id
         //先查询该文章
-        Article article = articleRepository.findArticleByArticle_id(article_id);
+        Article article = articleService.findArticleByArticleId(article_id);
         if (StringUtils.isEmpty(article)) {
             return ResultUtils.error(ResultCode.NO_FIND_ARTICLE);
         }
@@ -546,7 +558,7 @@ public class ArticleController {
             operations.set(Constans.RedisKey.ARTICLE_TOTAL_VIEWS, views+num);
         }
         article.setViews(article.getViews() + 1);
-        articleRepository.saveAndFlush(article);
+        articleService.saveArticle(article);
         //更新数据到引擎
         articleSearchRepository.save(new ESArticle(article));
         return ResultUtils.ok(article);
@@ -578,7 +590,7 @@ public class ArticleController {
     @Cacheable
     @PostMapping("/getArticleTotals")
     public Result<Integer> getArticleTotals(){
-        return ResultUtils.ok(articleRepository.findAllArticleTotals());
+        return ResultUtils.ok(articleService.findAllArticleTotals());
     }
 
     /**
@@ -595,7 +607,7 @@ public class ArticleController {
     @PostMapping("/getArticleDetail")
     public Result<String> getArticleDetail(@RequestParam int article_id) {
         //先查询该文章
-        Article article = articleRepository.findArticleByArticle_id(article_id);
+        Article article = articleService.findArticleByArticleId(article_id);
         if (StringUtils.isEmpty(article)) {
             return ResultUtils.error(ResultCode.NO_FIND_ARTICLE);
         }
@@ -622,12 +634,12 @@ public class ArticleController {
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
         }
         //先查询该文章
-        Article article = articleRepository.findArticleByArticle_id(article_id);
+        Article article = articleService.findArticleByArticleId(article_id);
         if (StringUtils.isEmpty(article)) {
             return ResultUtils.error(ResultCode.NO_FIND_ARTICLE);
         }
         //判断是否为管理员
-        User user = userRepository.findUserByUser_id(user_id);
+        User user = userService.findUserByUserId(user_id);
         if (null != user) {
             if (user.getAdmin_status() != AdminEnum.ADMIN.getAdmin_status()) {
                 return ResultUtils.error(ResultCode.NO_REVIEW_PERMITION);
@@ -638,54 +650,10 @@ public class ArticleController {
                 article.setReview_status(-1);
             }
             article.setDate(new Date());
-            articleRepository.saveAndFlush(article);
+            articleService.saveArticle(article);
             //插入数据到引擎
             articleSearchRepository.save(new ESArticle(article));
         }
         return ResultUtils.ok("审核操作成功!");
     }
-
-    @Async
-    public String getMdContent(String link){
-        return MarkdownUtils.getMdContent(link);
-    }
-
-    /**
-     * 上传文件
-     *
-     * @param file
-     * @return 文件路径
-     */
-    @Async
-    public String uploadImg(MultipartFile file) {
-        String dateName = null;
-        if (file == null || file.isEmpty() || file.getSize() == 0) return dateName;
-        //文章大图文件上传
-        try {
-            File path = null;
-            try {
-                path = new File(ResourceUtils.getURL("classpath:").getPath());
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            if (!path.exists()) path = new File("");
-            System.out.println("path:" + path.getAbsolutePath());
-            //如果上传目录为/static/images/upload/，则可以如下获取：
-            File upload = new File(path.getAbsolutePath(), "static/images/upload/");
-            if (!upload.exists()) upload.mkdirs();
-            System.out.println("upload url:" + upload.getAbsolutePath());
-            //保存时的文件名(时间戳生成)
-            DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
-            Calendar calendar = Calendar.getInstance();
-            dateName = df.format(calendar.getTime()) + file.getOriginalFilename();
-            Path path1 = Paths.get(upload.getAbsolutePath(), dateName);
-            byte[] bytes = file.getBytes();
-            Files.write(path1, bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
-        return FILE_FOLDER+dateName;
-    }
-
 }

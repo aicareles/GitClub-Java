@@ -7,7 +7,7 @@ import com.jerry.geekdaily.base.ResultCode;
 import com.jerry.geekdaily.base.ResultUtils;
 import com.jerry.geekdaily.config.Constans;
 import com.jerry.geekdaily.domain.User;
-import com.jerry.geekdaily.repository.UserRepository;
+import com.jerry.geekdaily.service.UserService;
 import com.jerry.geekdaily.util.HttpUtils;
 import com.jerry.geekdaily.util.SignUtils;
 import io.swagger.annotations.Api;
@@ -35,7 +35,7 @@ public class WeChatController {
     private final static Logger logger = LoggerFactory.getLogger(WeChatController.class);
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     /**
      * 小程序登陆(注册)
@@ -66,7 +66,7 @@ public class WeChatController {
             if (!StringUtils.isEmpty(jsonObject) && StringUtils.isEmpty(jsonObject.getString("errmsg"))) {
                 openid = jsonObject.getString("openid");
                 sessionKey = jsonObject.getString("session_key");
-                User user = userRepository.findUserByOpen_id(openid);
+                User user = userService.findUserByOpenId(openid);
                 if (!StringUtils.isEmpty(user)) {
                     //已存在用户
                     return ResultUtils.ok(user);
@@ -80,7 +80,7 @@ public class WeChatController {
                     user.setOpen_id(openid);
                     user.setSession_key(sessionKey);
                     user.setDate(new Date());
-                    user = userRepository.save(user);
+                    user = userService.register(user);
                     return ResultUtils.ok(user);
                 }
             } else {

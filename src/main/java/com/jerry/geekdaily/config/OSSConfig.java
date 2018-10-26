@@ -1,4 +1,4 @@
-package com.jerry.geekdaily;
+package com.jerry.geekdaily.config;
 
 import com.jerry.geekdaily.config.SystemConfig;
 
