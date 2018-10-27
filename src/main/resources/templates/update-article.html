@@ -113,7 +113,7 @@
             <div class="add-article-box">
               <h2 class="add-article-box-title"><span>描述</span></h2>
               <div class="add-article-box-content">
-              	<textarea class="form-control" id="des" name="des" th:field="*{des}" autocomplete="off"></textarea>
+              	<textarea style="height: 120px" class="form-control" id="des" name="des" th:field="*{des}" autocomplete="off"></textarea>
                 <!--<span class="prompt-text">描述是可选的手工创建的内容总结，并可以在网页描述中使用</span>-->
               </div>
             </div>
@@ -129,6 +129,20 @@
                 <input id="r_category2" type="radio" value="iOS" name="category">iOS</input>
                 <input id="r_category3" type="radio" value="前端" name="category">前端</input>
                 <!--<input id="r_category4" type="radio" value="其他" name="category">其他</input>-->
+              </div>
+            </div>
+            <div class="add-article-box">
+              <h2 class="add-article-box-title"><span>子分类</span></h2>
+              <div class="add-article-box-content">
+                <input id="r_child_category0" type="radio" value="0" name="child_category">开源库</input>
+                <input id="r_child_category1" type="radio" value="1" name="child_category">资讯</input>
+                <input id="r_child_category2" type="radio" value="2" name="child_category">教程</input>
+                <input id="r_child_category3" type="radio" value="3" name="child_category">书籍</input>
+                <input id="r_child_category4" type="radio" value="4" name="child_category">工具</input>
+                <input id="r_child_category5" type="radio" value="5" name="child_category">APP</input>
+                <input id="r_child_category6" type="radio" value="6" name="child_category">活动</input>
+                <input id="r_child_category7" type="radio" value="7" name="child_category">招聘</input>
+                <input id="r_child_category8" type="radio" value="8" name="child_category">其他</input>
               </div>
             </div>
             <div class="add-article-box">
@@ -183,9 +197,9 @@
             <div class="add-article-box">
               <h2 class="add-article-box-title"><span>发布</span></h2>
               <div class="add-article-box-content">
-              	<p><label>状态：</label><span class="article-status-display">未发布</span></p>
-                <p><label>公开度：</label><input type="radio" name="visibility" value="0" checked/>公开 <input type="radio" name="visibility" value="1" />加密</p>
-                <p><label>发布于：</label><span class="article-time-display"><input style="border: none;" type="datetime" name="time" value="2016-01-09 17:29:37" /></span></p>
+              	<p><label>状态：</label><span class="article-status-display">编辑中</span></p>
+                <p><label>是否更新发布日期：</label><input type="radio" name="update" value="1"/>是<input type="radio" name="update" value="0" checked/>否</p>
+                <p><label>上次发布时间：</label><span class="article-time-display"><input style="border: none;" id="lasttime" name="lasttime" th:field="*{date}" /></span></p>
               </div>
               <div class="add-article-box-footer">
                 <button class="btn btn-primary" type="button" name="submit" th:onclick="'javascript:updateArticle(\''+${article.article_id}+'\')'">更新</button>
@@ -343,6 +357,7 @@
 <!--<script src="lib/ueditor/lang/zh-cn/zh-cn.js"></script>  -->
 <!--<script id="uploadEditor" type="text/plain" style="display:none;"></script>-->
 <input id="category" type="hidden" th:value="${article.category}">
+<input id="child_category" type="hidden" th:value="${article.child_category}">
 <input id="rank" type="hidden" th:value="${article.rank}">
 <script type="text/javascript">
 
@@ -352,6 +367,13 @@ window.onload = function () {
     for (var i=0; i<radio_category.length; i++){
         if(category == radio_category[i].value){
             radio_category[i].checked = true;
+        }
+    }
+    var child_category = document.getElementById("child_category").value;
+    var radio_child_category = document.getElementsByName("child_category");
+    for (var i=0; i<radio_child_category.length; i++){
+        if(child_category == radio_child_category[i].value){
+            radio_child_category[i].checked = true;
         }
     }
     var rank = document.getElementById("rank").value;
@@ -377,11 +399,13 @@ function updateArticle(article_id) {
     var title = document.getElementById("title").value;
     var des = document.getElementById("des").value;
     var contributor_id = parseInt(getCookie("geek_userId"));
-    // var category = document.getElementById("category").value;
     var category = $("input[name='category']:checked").val();
+    var child_category = $("input[name='child_category']:checked").val();
     var rank = parseInt($("input[name='rank']:checked").val());
     var link = document.getElementById("link").value;
     var img_url = document.getElementById("img_url").value;
+    // var update = $("input[name='update']:checked").val();
+    // var datetime = (update === 0) ? convertDateFromString(document.getElementById("lasttime").value) : new Date();
     $.ajax({
         type: "POST",
         url: "/geekdaily/updateArticle",
@@ -391,6 +415,7 @@ function updateArticle(article_id) {
             "title": title,
             "des": des,
             "category": category,
+            "child_category": child_category,
             "rank": rank,
             "link": link,
             "img_url": img_url
@@ -410,6 +435,15 @@ function updateArticle(article_id) {
             window.alert("出错了!");
         }
     })
+}
+
+function convertDateFromString(dateString) {
+    if (dateString) {
+        var arr1 = dateString.split(" ");
+        var sdate = arr1[0].split('-');
+        var date = new Date(sdate[0], sdate[1]-1, sdate[2]);
+        return date;
+    }
 }
 // var editor = UE.getEditor('article-content');
 //自动刷新

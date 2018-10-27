@@ -1,14 +1,19 @@
 package com.jerry.geekdaily.domain;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Date;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Stars implements Serializable {
 
     @Id
@@ -23,8 +28,13 @@ public class Stars implements Serializable {
 
     private int status;//点赞状态   0未点赞   1已点赞
 
+    @CreatedDate
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;//点赞时间
+
+    @LastModifiedDate
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    private Date update_date;
 
     public Integer getId() {
         return id;
@@ -72,6 +82,14 @@ public class Stars implements Serializable {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Date getUpdate_date() {
+        return update_date;
+    }
+
+    public void setUpdate_date(Date update_date) {
+        this.update_date = update_date;
     }
 
     @Override

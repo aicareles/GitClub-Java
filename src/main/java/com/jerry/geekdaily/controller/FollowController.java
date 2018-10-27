@@ -3,6 +3,7 @@ package com.jerry.geekdaily.controller;
 import com.jerry.geekdaily.base.Result;
 import com.jerry.geekdaily.base.ResultUtils;
 import com.jerry.geekdaily.domain.Follow;
+import com.jerry.geekdaily.dto.FollowDTO;
 import com.jerry.geekdaily.repository.FollowRepository;
 import com.jerry.geekdaily.service.FollowService;
 import com.jerry.geekdaily.util.BeanCopyUtil;
@@ -51,7 +52,7 @@ public class FollowController {
             @ApiImplicitParam(name = "status", value = "关注状态", required = true ,dataType = "int"),
     })
     @PostMapping("/follow")
-    public Result<Follow> follow(@Valid Follow followDTO, BindingResult bindingResult){
+    public Result<Follow> follow(@Valid FollowDTO followDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
             return ResultUtils.error(bindingResult.getFieldError().getDefaultMessage());
         }
@@ -61,7 +62,6 @@ public class FollowController {
         Follow follow = followService.findFollow(followDTO.getUserId(), followDTO.getFansId());
         if(StringUtils.isEmpty(follow)){
             //未找到  代表未关注过则开始关注
-            follow.setDate(new Date());
             follow.setStatus(1);
             BeanCopyUtil.beanCopyWithIngore(followDTO, follow, "status");
             followService.saveFollow(follow);

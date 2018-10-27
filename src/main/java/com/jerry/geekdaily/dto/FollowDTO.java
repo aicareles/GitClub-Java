@@ -1,46 +1,37 @@
-package com.jerry.geekdaily.domain;
+package com.jerry.geekdaily.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-public class Follow implements Serializable {
+public class FollowDTO implements Serializable {
 
-    @Id
-    @GeneratedValue
     private Integer id;
 
     //被关注者的用户id
-    private int userId;
+    @NotNull(message="被关注者ID不能为空！")
+    private Integer userId;
     //被关注者的昵称
     private String nickName;
     //被关注者的头像
     private String avatar;
     //粉丝的用户id
-    private int fansId;
+    @NotNull(message="关注者ID不能为空！")
+    private Integer fansId;
     //粉丝的昵称
     private String fanNickName;
     //粉丝的头像
     private String fanAvatar;
-    //关注日期
-    @LastModifiedDate
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
-    private Date date;
     //当前关注状态   0为未关注  1为已关注
-    private int status;
+    @NotNull(message="关注状态不能为空！")
+    private Integer status;
 
-    public Follow(){}
+    public FollowDTO(){}
 
     public Integer getId() {
         return id;
@@ -98,14 +89,6 @@ public class Follow implements Serializable {
         this.fanAvatar = fanAvatar;
     }
 
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
     public int getStatus() {
         return status;
     }
@@ -120,7 +103,6 @@ public class Follow implements Serializable {
                 "id=" + id +
                 ", userId=" + userId +
                 ", fansId=" + fansId +
-                ", date=" + date +
                 ", status=" + status +
                 '}';
     }

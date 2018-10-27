@@ -8,6 +8,7 @@ import com.jerry.geekdaily.domain.Article;
 import com.jerry.geekdaily.domain.ESArticle;
 import com.jerry.geekdaily.domain.Stars;
 import com.jerry.geekdaily.domain.User;
+import com.jerry.geekdaily.dto.StarsDTO;
 import com.jerry.geekdaily.dto.UpdateArticleDTO;
 import com.jerry.geekdaily.enums.AdminEnum;
 import com.jerry.geekdaily.enums.StarStatusEnum;
@@ -181,7 +182,7 @@ public class ArticleController {
         if(!LinkUtils.verifyURL(articleInfo.getLink()) || !LinkUtils.verifyURL(articleInfo.getImg_url())){
             return ResultUtils.error(ResultCode.UPLOAD_LINK_ERROR);
         }
-        articleInfo.setDate(new Date());
+//        articleInfo.setDate(new Date());
         articleInfo.setMd_content(MarkdownUtils.getMdContent(articleInfo.getLink()));
         articleInfo.setWrap_link(LinkUtils.gererateShortUrl(articleInfo.getLink()));
         //判断是否为管理员   若为管理员则直接通过审核
@@ -228,7 +229,8 @@ public class ArticleController {
             @ApiImplicitParam(name = "child_category", value = "文章子分类", required = false, dataType = "int"),
             @ApiImplicitParam(name = "rank", value = "文章等级", required = false, dataType = "int"),
             @ApiImplicitParam(name = "link", value = "文章链接", required = false, dataType = "string"),
-            @ApiImplicitParam(name = "img_url", value = "文章图片url", required = false, dataType = "string")
+            @ApiImplicitParam(name = "img_url", value = "文章图片url", required = false, dataType = "string"),
+            @ApiImplicitParam(name = "date", value = "发布时间", required = false, dataType = "date")
     })
     @CacheEvict(value = "ArticleController", allEntries = true)//更新文章，将文章相关缓存清空
     @PostMapping("/updateArticle")
@@ -257,7 +259,7 @@ public class ArticleController {
             if (user.getAdmin_status() != AdminEnum.ADMIN.getAdmin_status() && articleInfo.getContributor_id() != article.getContributor_id()) {
                 return ResultUtils.error(ResultCode.NO_EDIT_PERMITION);
             }
-            article.setDate(new Date());
+//            article.setDate(new Date());
             article.setReview_status(user.getAdmin_status() == AdminEnum.ADMIN.getAdmin_status() ? 1 : 0);
         }else {
             return ResultUtils.error(ResultCode.INVALID_USER);
@@ -338,78 +340,68 @@ public class ArticleController {
 
     /**
      * 点赞、取消点赞、反赞、取消反赞
-     *
-     * @param article_id 文章id
-     * @param user_id    用户id
-     * @param type       点赞/反赞类型    1文章  2评论
-     * @param status     1 点赞  2反赞    0取消点赞/反赞(闲置状态)
      */
     @ApiOperation(value = "点赞或反赞", notes = "点赞或反赞接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "article_id", value = "文章ID", required = true, dataType = "int"),
             @ApiImplicitParam(name = "user_id", value = "用户ID", required = true, dataType = "int"),
-            @ApiImplicitParam(name = "type", value = "点赞/反赞类型", required = true, dataType = "int"),
-            @ApiImplicitParam(name = "status", value = "点赞/反赞状态", required = true, dataType = "int")
+            @ApiImplicitParam(name = "type", value = "点赞/反赞类型,1文章、2评论", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "status", value = "点赞/反赞状态，1点赞、2反赞、0取消点赞/反赞(闲置状态)", required = true, dataType = "int")
     })
     @CacheEvict(value = "ArticleController", allEntries = true)//将文章相关缓存清空
     @PostMapping("/starArticle")
-    public Result<Stars> starArticle(@RequestParam("article_id") int article_id, @RequestParam("user_id") int user_id,
-                                     @RequestParam("type") int type, @RequestParam("status") int status) {
+    public Result<Stars> starArticle(@Valid StarsDTO starsDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()){
+            return ResultUtils.error(bindingResult.getFieldError().getDefaultMessage());
+        }
         //先查看该用户是否已经点赞/反赞，如果没有点赞/反赞 则增加一条记录，如果已经点赞/反赞，查看点赞/反赞的状态status
         //如果该值为0  若点赞，则设置为1，若反赞，则设置为2     取消点赞/反赞，则设置为0
-        Stars starts = starsService.findByUserIdAndArticleId(user_id, article_id);
-        Article article = articleService.findArticleByArticleId(article_id);
+        Stars starts = starsService.findByUserIdAndArticleId(starsDTO.getUser_id(), starsDTO.getArticle_id());
+        Article article = articleService.findArticleByArticleId(starsDTO.getArticle_id());
         String msg = "操作成功!";
         if(article == null){
             return ResultUtils.error("文章ID不存在!");
         }
         if(starts == null){
-            //不存在   插入点赞/反赞
-            starts = new Stars();
-            starts.setArticle_id(article_id);
-            starts.setUser_id(user_id);
-            starts.setStatus(status);
-            starts.setType(type);
-            starts.setDate(new Date());
-            //往article表中添加star
-            if(status == 1){//点赞
+            //不存在   插入点赞/反赞,article表中添加star
+            BeanCopyUtil.beanCopy(starsDTO, starts);
+            if(starsDTO.getStatus() == 1){//点赞
                 article.setStars(article.getStars()+1);
                 msg = "点赞成功!";
-            }else if (status == 2){
+            }else if (starsDTO.getStatus() == 2){
                 article.setUn_stars(article.getUn_stars()+1);
                 msg = "反赞成功!";
             }
         }else {
-            //往article表中添加star/unstar
-            //存在数据   则判断点赞/反赞状态
+            //往article表中添加star/unstar  存在数据,则判断点赞/反赞状态
             if(starts.getStatus() == StarStatusEnum.STAR_STATUS.getStar_status()){
-                if(status == 0){//取消点赞
+                if(starsDTO.getStatus() == 0){//取消点赞
                     starts.setStatus(0);
                     article.setStars(article.getStars()-1);
                     msg = "取消点赞成功!";
-                }else if(status == 2){//反赞
+                }else if(starsDTO.getStatus() == 2){//反赞
                     starts.setStatus(2);
                     article.setStars(article.getStars()-1);
                     article.setUn_stars(article.getStars()+1);
                     msg = "反赞成功!";
                 }
             }else if(starts.getStatus() == StarStatusEnum.UN_STAR_STATUS.getStar_status()){//当前反赞
-                if(status == 0){//取消反赞
+                if(starsDTO.getStatus() == 0){//取消反赞
                     starts.setStatus(0);
                     article.setUn_stars(article.getStars()-1);
                     msg = "取消反赞成功!";
-                }else if(status == 1){//点赞
+                }else if(starsDTO.getStatus() == 1){//点赞
                     starts.setStatus(1);
                     article.setStars(article.getStars()+1);
                     article.setUn_stars(article.getStars()-1);
                     msg = "点赞成功!";
                 }
             }else {//当前0（闲置）
-                if(status == 1){//点赞
+                if(starsDTO.getStatus() == 1){//点赞
                     starts.setStatus(1);
                     article.setStars(article.getStars()+1);
                     msg = "点赞成功!";
-                }else if(status == 2){//反赞
+                }else if(starsDTO.getStatus() == 2){//反赞
                     starts.setStatus(2);
                     article.setUn_stars(article.getStars()+1);
                     msg = "反赞成功!";
@@ -466,7 +458,9 @@ public class ArticleController {
     })
     @Cacheable
     @PostMapping("/getMyStarArticles")
-    public Result<Article> getMyStarArticles(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestParam("user_id") int user_id) {
+    public Result<Article> getMyStarArticles(@RequestParam("page") Integer page,
+                                             @RequestParam("size") Integer size,
+                                             @RequestParam("user_id") int user_id) {
         User user = userService.findUserByUserId(user_id);
         if (StringUtils.isEmpty(user)) {
             return ResultUtils.error(ResultCode.INVALID_USER);
@@ -497,7 +491,9 @@ public class ArticleController {
     })
     @Cacheable
     @PostMapping("/getMyContributeArticles")
-    public Result<Article> getMyContributeArticles(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestParam("user_id") int user_id) {
+    public Result<Article> getMyContributeArticles(@RequestParam("page") Integer page,
+                                                   @RequestParam("size") Integer size,
+                                                   @RequestParam("user_id") int user_id) {
         User user = userService.findUserByUserId(user_id);
         if (StringUtils.isEmpty(user)) {
             return ResultUtils.error(ResultCode.INVALID_USER);
@@ -629,7 +625,9 @@ public class ArticleController {
     })
     @CacheEvict(value = "ArticleController", allEntries = true)//删除文章，将文章相关缓存清空
     @PostMapping("/reviewArticle")
-    public Result<Boolean> reviewArticle(@RequestParam int user_id, @RequestParam int article_id, @RequestParam boolean is_pass){
+    public Result<Boolean> reviewArticle(@RequestParam int user_id,
+                                         @RequestParam int article_id,
+                                         @RequestParam boolean is_pass){
         if(StringUtils.isEmpty(user_id) || StringUtils.isEmpty(article_id)){
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
         }
@@ -649,7 +647,7 @@ public class ArticleController {
             }else {
                 article.setReview_status(-1);
             }
-            article.setDate(new Date());
+//            article.setDate(new Date());
             articleService.saveArticle(article);
             //插入数据到引擎
             articleSearchRepository.save(new ESArticle(article));

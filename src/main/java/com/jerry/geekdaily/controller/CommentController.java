@@ -5,9 +5,11 @@ import com.jerry.geekdaily.base.ResultUtils;
 import com.jerry.geekdaily.domain.Article;
 import com.jerry.geekdaily.domain.Comment;
 import com.jerry.geekdaily.domain.ESArticle;
+import com.jerry.geekdaily.dto.CommentDTO;
 import com.jerry.geekdaily.repository.ESArticleSearchRepository;
 import com.jerry.geekdaily.service.ArticleService;
 import com.jerry.geekdaily.service.CommentService;
+import com.jerry.geekdaily.util.BeanCopyUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -88,15 +90,16 @@ public class CommentController {
     })
     @CacheEvict(value = "getArticleComments", allEntries = true)//将文章评论列表相关缓存清空
     @PostMapping("/commentArticle")
-    public Result<Comment> commentArticle(@Valid Comment comment, BindingResult bindingResult) {
+    public Result<Comment> commentArticle(@Valid CommentDTO commentDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResultUtils.error(bindingResult.getFieldError().getDefaultMessage());
         }
-        Article article = articleService.findArticleByArticleId(comment.getArticle_id());
+        Article article = articleService.findArticleByArticleId(commentDTO.getArticle_id());
         if (StringUtils.isEmpty(article)) {
             return ResultUtils.error("未发现相关文章!");
         }
-        comment.setDate(new Date());
+        Comment comment = new Comment();
+        BeanCopyUtil.beanCopy(commentDTO, comment);
         commentService.saveComment(comment);
         article.setComments(article.getComments() + 1);
         articleService.saveArticle(article);

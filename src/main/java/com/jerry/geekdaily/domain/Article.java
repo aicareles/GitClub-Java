@@ -1,6 +1,9 @@
 package com.jerry.geekdaily.domain;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -8,6 +11,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Article implements Serializable {
 
     @Id
@@ -58,9 +62,14 @@ public class Article implements Serializable {
 
     private int rank;//文章适合等级（0所有人、1初学、2进阶）
 
-    //文章上传更新日期
+    //文章创建日期
+    @CreatedDate
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;
+
+    @LastModifiedDate
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    private Date update_date;
 
     private int review_status;//审核状态  0代表审核审核中 1代表审核成功  -1代表审核失败
 
@@ -207,8 +216,16 @@ public class Article implements Serializable {
         return date;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate(Date create_date) {
+        this.date = create_date;
+    }
+
+    public Date getUpdate_date() {
+        return update_date;
+    }
+
+    public void setUpdate_date(Date update_date) {
+        this.update_date = update_date;
     }
 
     public int getReview_status() {
@@ -252,7 +269,7 @@ public class Article implements Serializable {
                 ", comments=" + comments +
                 ", views=" + views +
                 ", tag='" + tag + '\'' +
-                ", date=" + date +
+                ", create_date=" + date +
                 '}';
     }
 }

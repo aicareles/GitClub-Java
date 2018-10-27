@@ -136,6 +136,20 @@
                             </div>
                         </div>
                         <div class="add-article-box">
+                            <h2 class="add-article-box-title"><span>子分类</span></h2>
+                            <div class="add-article-box-content">
+                                <input id="r_child_category0" type="radio" value="0" name="child_category" checked="checked">开源库</input>
+                                <input id="r_child_category1" type="radio" value="1" name="child_category">资讯</input>
+                                <input id="r_child_category2" type="radio" value="2" name="child_category">教程</input>
+                                <input id="r_child_category3" type="radio" value="3" name="child_category">书籍</input>
+                                <input id="r_child_category4" type="radio" value="4" name="child_category">工具</input>
+                                <input id="r_child_category5" type="radio" value="5" name="child_category">APP</input>
+                                <input id="r_child_category6" type="radio" value="6" name="child_category">活动</input>
+                                <input id="r_child_category7" type="radio" value="7" name="child_category">招聘</input>
+                                <input id="r_child_category8" type="radio" value="8" name="child_category">其他</input>
+                            </div>
+                        </div>
+                        <div class="add-article-box">
                             <h2 class="add-article-box-title"><span>适合等级</span></h2>
                             <div class="add-article-box-content">
                                 <input id="r1" type="radio" value="0" name="rank" checked="checked">所有人</input>
@@ -428,9 +442,9 @@ function uploadArticle() {
     var des = document.getElementById("des").value;
     var userId = getCookie("geek_userId");
     var contributor_id = parseInt(userId);
-    // var category = document.getElementById("category").value;
     var category = $("input[name='category']:checked").val();
-    var rank = parseInt($("input[name='rank']:checked").val());
+    var child_category = $("input[name='child_category']:checked").val();
+    var rank = $("input[name='rank']:checked").val();
     var link = document.getElementById("link").value;
     var img_url = document.getElementById("img_url").value;
     $.ajax({
@@ -441,6 +455,7 @@ function uploadArticle() {
             "des":des,
             "contributor_id":contributor_id,
             "category":category,
+            "child_category":child_category,
             "rank":rank,
             "link":link,
             "img_url":img_url

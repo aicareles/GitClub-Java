@@ -1,6 +1,7 @@
 package com.jerry.geekdaily.domain;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.jerry.geekdaily.util.BeanCopyUtil;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.*;
@@ -54,29 +55,17 @@ public class ESArticle implements Serializable {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;
 
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    private Date update_date;
+
     private User user;// 用户表外键
 
     public ESArticle() {
     }
 
     public ESArticle(Article article) {
-        this.id = this.article_id = article.getArticle_id();
-        this.title = article.getTitle();
-        this.des = article.getDes();
-        this.img_url = article.getImg_url();
-        this.link = article.getLink();
-        this.wrap_link = article.getWrap_link();
-        this.contributor = article.getContributor();
-        this.contributor_id = article.getContributor_id();
-        this.stars = article.getStars();
-        this.comments = article.getComments();
-        this.views = article.getViews();
-        this.tag = article.getTag();
-        this.category = article.getCategory();
-        this.child_category = article.getChild_category();
-        this.rank = article.getRank();
-        this.date = article.getDate();
-        this.user = article.getUser();
+        this.id = article.getArticle_id();
+        BeanCopyUtil.beanCopy(article, this);
     }
 
     public Integer getId() {
@@ -197,6 +186,14 @@ public class ESArticle implements Serializable {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Date getUpdate_date() {
+        return update_date;
+    }
+
+    public void setUpdate_date(Date update_date) {
+        this.update_date = update_date;
     }
 
     public int getUn_stars() {

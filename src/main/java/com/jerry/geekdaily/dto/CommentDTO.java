@@ -1,44 +1,39 @@
-package com.jerry.geekdaily.domain;
+package com.jerry.geekdaily.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * 评论表
- */
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-public class Comment implements Serializable {
+public class CommentDTO implements Serializable {
 
-    @Id
-    @GeneratedValue
     private Integer id;
 
     //文章id
-    private int article_id;
+    @NotNull(message="文章ID不能为空！")
+    private Integer article_id;
 
     //文章type
-    private int article_type;
+    @NotNull(message="评论类型不能为空！")
+    private Integer article_type;
 
     //评论内容
+    @NotEmpty(message="评论内容不能为空！")
     private String content;
 
     //评论用户id
-    private int from_uid;
+    @NotNull(message = "评论用户ID不能为空！")
+    private Integer from_uid;
 
     //评论目标用户id
     private int to_uid;
 
     //评论日期
-    @CreatedDate
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;
 
@@ -53,7 +48,7 @@ public class Comment implements Serializable {
     //评论目标用户头像
     private String to_avatar;
 
-    public Comment() {
+    public CommentDTO() {
     }
 
     public Integer getId() {
