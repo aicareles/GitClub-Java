@@ -20,7 +20,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaAuditing
 @SpringBootApplication
 public class GeekDailyApplication {
-
     public static void main(String[] args) {
         System.setProperty("es.set.netty.runtime.available.processors", "false");
         SpringApplication.run(GeekDailyApplication.class, args);

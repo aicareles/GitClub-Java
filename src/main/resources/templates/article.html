@@ -48,7 +48,7 @@
                             </ul>
                         </li>
                         <li><a href="/geekdaily/logout" onClick="if(!confirm('是否确认退出？'))return false;">退出登录</a></li>
-                        <li><a data-toggle="modal" data-target="#WeChat">帮助</a></li>
+                        <li><a data-toggle="modal" data-target="#WeChat">小程序</a></li>
                     </ul>
                     <form action="" method="" class="navbar-form navbar-right" role="search">
                         <div class="input-group">
@@ -145,21 +145,21 @@
                             <td style="max-width: 200px" th:text="${article.title}"></td>
                             <td style="max-width: 200px" th:text="${article.des}"></td>
                             <td style="max-width: 200px; text-overflow: ellipsis;overflow:hidden;">
-                                <a th:href="${article.link}" th:text="${article.link}"/>
+                                <a th:href="${article.link}" target="_blank" th:text="${article.link}"/>
                             </td>
                             <td style="max-width: 200px; text-overflow: ellipsis;overflow:hidden;">
-                                <a th:href="${article.img_url}" th:text="${article.img_url}"/>
+                                <a th:href="${article.img_url}" target="_blank" th:text="${article.img_url}"/>
                             </td>
                             <td class="hidden-sm" th:text="${article.stars}"></td>
                             <td class="hidden-sm" th:text="${article.comments}"></td>
                             <td class="hidden-sm" th:text="${article.views}"></td>
                             <td th:text="${#dates.format(article.date, 'yyyy-MM-dd HH:mm:ss')}">2015-12-03</td>
-                            <td>
-                                <a th:id="${article.article_id}" th:onclick="'javascript:editArticle(\''+${article.article_id}+'\')'">修改</a>
-                                <a th:id="${article.article_id}" th:onclick="'javascript:deleteArticle(\''+${article.article_id}+'\')'">删除</a>
-                                <a th:id="${article.article_id}" th:if= "${article.review_status == 0}" th:onclick="'javascript:reviewArticle(\''+${article.article_id}+'\')'">审核中</a>
-                                <a th:id="${article.article_id}" th:if= "${article.review_status == 1}" th:onclick="'javascript:reviewArticle(\''+${article.article_id}+'\')'">已通过</a>
-                                <a th:id="${article.article_id}" th:if= "${article.review_status == -1}" th:onclick="'javascript:reviewArticle(\''+${article.article_id}+'\')'">未通过</a>
+                            <td th:switch="${article.review_status}">
+                                <a th:onclick="'javascript:editArticle(\''+${article.article_id}+'\')'">修改</a>
+                                <a th:onclick="'javascript:deleteArticle(\''+${article.article_id}+'\')'">删除</a>
+                                <a th:case="1" th:onclick="'javascript:reviewArticle(\''+${article.article_id}+'\')'">已通过</a>
+                                <a th:case="-1" th:onclick="'javascript:reviewArticle(\''+${article.article_id}+'\')'">未通过</a>
+                                <a th:case="*" th:onclick="'javascript:reviewArticle(\''+${article.article_id}+'\')'">审核中</a>
                             </td>
                         </tr>
                         </div>

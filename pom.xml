@@ -123,11 +123,16 @@
             <version>1.94</version>
         </dependency>
 
-
         <dependency>
             <groupId>com.aliyun.oss</groupId>
             <artifactId>aliyun-sdk-oss</artifactId>
             <version>2.8.3</version>
+        </dependency>
+
+        <!--Actuator应用的自省和监控-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
         <dependency>
