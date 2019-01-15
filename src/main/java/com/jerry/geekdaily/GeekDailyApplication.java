@@ -39,7 +39,6 @@ public class GeekDailyApplication {
                 context.addConstraint(securityConstraint);
             }
         };
-
         tomcat.addConnectorCustomizers((TomcatConnectorCustomizer) connector -> {
             if ((connector.getProtocolHandler() instanceof AbstractHttp11Protocol<?>)) {
                 //-1 means unlimited
