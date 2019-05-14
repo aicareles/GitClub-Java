@@ -7,8 +7,6 @@ import com.jerry.geekdaily.domain.User;
 import com.jerry.geekdaily.service.UserService;
 import com.jerry.geekdaily.util.CookieUtils;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,25 +29,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    /**
-     * 添加用户   （相当于注册）
-     * @param nick_name 用户名
-     * @param avatar 头像url
-     * @param gender 性别 0男   1女
-     * @param city 城市
-     * @return  注册成功的用户对象
-     */
-    @ApiOperation(value = "用户注册", notes = "用户注册接口")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "nick_name", value = "用户名", required = true ,dataType = "string"),
-            @ApiImplicitParam(name = "password", value = "密码", required = true ,dataType = "string"),
-            @ApiImplicitParam(name = "avatar", value = "头像", required = false ,dataType = "string"),
-            @ApiImplicitParam(name = "gender", value = "性别", required = false ,dataType = "string"),
-            @ApiImplicitParam(name = "city", value = "城市", required = false ,dataType = "string"),
-    })
     @PostMapping(value = "/register")
-    public Result<User> register(@RequestParam(value = "nick_name", required = true) String nick_name,
-                                @RequestParam(value = "password", required = true) String password,
+    public Result<User> register(@RequestParam(value = "nick_name") String nick_name,
+                                @RequestParam(value = "password") String password,
                                 @RequestParam(value = "avatar", required = false) String avatar,
                                 @RequestParam(value = "gender", required = false) String gender,
                                 @RequestParam(value = "city", required = false) String city) {
@@ -58,7 +40,7 @@ public class UserController {
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
         }
         User user = new User();
-        user.setNick_name(nick_name);
+        user.setNickName(nick_name);
         user.setPwd(password);
         user.setAvatar(avatar);
         user.setGender(gender);
@@ -69,17 +51,7 @@ public class UserController {
         return ResultUtils.ok(user);
     }
 
-    /**
-     * 用户登陆
-     * @param userName 用户名
-     * @param password 密码
-     * @return  登陆成功的用户对象
-     */
     @ApiOperation(value = "用户登陆", notes = "用户登陆接口")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userName", value = "用户名", required = true ,dataType = "string"),
-            @ApiImplicitParam(name = "password", value = "密码", required = true ,dataType = "string"),
-    })
     @PostMapping(value = "/login")
     public Result<User> login(@RequestParam("userName")String userName, @RequestParam("password")String password,
                               HttpServletRequest request, HttpServletResponse response){
@@ -87,7 +59,7 @@ public class UserController {
             User user = userService.login(userName, password);
             if(user != null){
                 //保存到cookie中
-                CookieUtils.addCookie(user.getUser_id()+"", user.getNick_name(), response, request);
+                CookieUtils.addCookie(user.getUserId()+"", user.getNickName(), response, request);
                 return ResultUtils.ok(user);
             }else {
                 return ResultUtils.error(ResultCode.INVALID_USERNAME_PASSWORD);

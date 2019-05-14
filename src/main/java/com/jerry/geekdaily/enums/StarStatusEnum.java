@@ -4,20 +4,20 @@ public enum StarStatusEnum {
 
     IDLE_STAR_STATUS(0),//0取消点赞/反赞(闲置状态)
     STAR_STATUS(1),//点赞状态
-    UN_STAR_STATUS(2)//2反赞状态
+//    UN_STAR_STATUS(2)//2反赞状态
     ;
 
-    private Integer star_status;
+    private Integer starStatus;
 
-    StarStatusEnum(Integer star_status){
-        this.star_status = star_status;
+    StarStatusEnum(Integer starStatus){
+        this.starStatus = starStatus;
     }
 
-    public Integer getStar_status() {
-        return star_status;
+    public Integer getStarStatus() {
+        return starStatus;
     }
 
-    public void setStar_status(Integer star_status) {
-        this.star_status = star_status;
+    public void setStarStatus(Integer starStatus) {
+        this.starStatus = starStatus;
     }
 }

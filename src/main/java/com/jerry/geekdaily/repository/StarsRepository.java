@@ -13,20 +13,20 @@ import java.util.List;
 
 public interface StarsRepository extends JpaRepository<Stars,Integer> {
 
-    @Query("select u from Stars u where (u.user_id = :user_id) and (u.article_id = :article_id)")
+    @Query("select u from Stars u where (u.userId = :user_id) and (u.articleId = :article_id)")
     Stars findByUserIdAndArticleId(@Param("user_id")int user_id, @Param("article_id")int article_id);
 
-    @Query("select u from Stars u where (u.article_id = :article_id) and (u.status = 1)")
+    @Query("select u from Stars u where (u.articleId = :article_id) and (u.status = 1)")
     Page<Stars> findStarsByArticleId(@Param("article_id")int article_id, Pageable pageable);
 
-    @Query("select u from Stars u where (u.user_id = :user_id) and (u.status = 1)")
+    @Query("select u from Stars u where (u.userId = :user_id) and (u.status = 1)")
     Page<Stars> findStarsByUserId(@Param("user_id")int user_id, Pageable pageable);
 
-    @Query("select u from Stars u where (u.user_id = :user_id) and (u.status = 1)")
+    @Query("select u from Stars u where (u.userId = :user_id) and (u.status = 1)")
     List<Stars> findAllByUserId(@Param("user_id")int user_id);
 
     @Modifying
     @Transactional
-    @Query("delete from Stars u where u.article_id = :article_id")
+    @Query("delete from Stars u where u.articleId = :article_id")
     void deleteByArticleId(@Param("article_id") int article_id);
 }

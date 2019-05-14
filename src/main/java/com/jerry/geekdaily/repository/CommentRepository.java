@@ -11,15 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    @Query("select u from Comment u where u.article_id = :article_id")
+    @Query("select u from Comment u where u.articleId = :article_id")
     Page<Comment> getAllByArticleId(@Param("article_id")int article_id, Pageable pageable);
 
-    @Query("select u from Comment u where u.from_uid = :user_id")
+    @Query("select u from Comment u where u.fromUid = :user_id")
     Page<Comment> getAllByFromId(@Param("user_id")int user_id, Pageable pageable);
 
     @Modifying
     @Transactional
-    @Query("delete from Comment u where u.article_id = :article_id")
+    @Query("delete from Comment u where u.articleId = :article_id")
     void deleteAllByArticleId(@Param("article_id") int article_id);
 
 }

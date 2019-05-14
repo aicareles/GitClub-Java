@@ -15,19 +15,19 @@ import java.util.List;
 
 public interface ArticleRepository extends JpaRepository<Article,Integer> {
 
-    @Query("select count(u) from Article u where u.review_status = 1")
+    @Query("select count(u) from Article u where u.reviewStatus = 1")
     Integer findAllArticleTotals();
 
-    @Query("select u from Article u where u.review_status = 1")
+    @Query("select u from Article u where u.reviewStatus = 1")
     Page<Article> findAllReviewedArticles(Pageable pageable);
 
-    @Query("select u from Article u where u.article_id = :article_id")
+    @Query("select u from Article u where u.articleId = :article_id")
     Article findArticleByArticleId(@Param("article_id")int article_id);
 
-    @Query("select u from Article u where u.contributor_id = :user_id")
+    @Query("select u from Article u where u.contributorId = :user_id")
     Page<Article> findAllByContributorId(@Param("user_id")int user_id, Pageable pageable);
 
-    @Query("select u from Article u where u.article_id in (:article_ids) order by u.date desc")
+    @Query("select u from Article u where u.articleId in (:article_ids) order by u.date desc")
     List<Article> findArticlesByArticleIdIn(@Param("article_ids")List<Integer> article_ids);
 
     @Query("select u from Article u where upper(u.category) = upper(:category)")

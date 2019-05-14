@@ -110,7 +110,7 @@
                       enctype="multipart/form-data" accept-charset="UTF-8">
                     <div class="col-md-9">
                         <h1 class="page-header">编辑更新文章</h1>
-                        <p><input type="hidden" id="article_id" name="article_id" } th:field="*{article_id}"/></p>
+                        <p><input type="hidden" id="article_id" name="article_id" } th:field="*{articleId}"/></p>
                         <div class="form-group">
                             <label for="title" class="sr-only">标题</label>
                             <input type="text" id="title" name="title" class="form-control" placeholder="在此处输入标题"
@@ -176,7 +176,7 @@
                             <h2 class="add-article-box-title"><span>标题图片</span></h2>
                             <div class="add-article-box-content">
                                 <input type="text" class="form-control" placeholder="请输入文章图片链接" id="img_url"
-                                       name="img_url" th:field="*{img_url}"
+                                       name="img_url" th:field="*{imgUrl}"
                                        required autocomplete="off">
                             </div>
                         </div>
@@ -206,7 +206,7 @@
                         <div class="add-article-box">
                             <h2 class="add-article-box-title"><span>发布</span></h2>
                             <div class="add-article-box-content">
-                                <p th:switch="${article.review_status}"><label>状态：</label>
+                                <p th:switch="${article.reviewStatus}"><label>状态：</label>
                                     <span th:case="-1" class="article-status-display">审核失败</span>
                                     <span th:case="1" class="article-status-display">审核成功</span>
                                     <span th:case="*" class="article-status-display">审核中</span>
@@ -218,7 +218,7 @@
                             </div>
                             <div class="add-article-box-footer">
                                 <button class="btn btn-primary" type="button" name="submit"
-                                        th:onclick="'javascript:updateArticle(\''+${article.article_id}+'\')'">更新
+                                        th:onclick="'javascript:updateArticle(\''+${article.articleId}+'\')'">更新
                                 </button>
                             </div>
                         </div>
@@ -387,7 +387,7 @@
 <!--<script src="lib/ueditor/lang/zh-cn/zh-cn.js"></script>  -->
 <!--<script id="uploadEditor" type="text/plain" style="display:none;"></script>-->
 <input id="category" type="hidden" th:value="${article.category}">
-<input id="child_category" type="hidden" th:value="${article.child_category}">
+<input id="child_category" type="hidden" th:value="${article.childCategory}">
 <input id="rank" type="hidden" th:value="${article.rank}">
 <script type="text/javascript">
 

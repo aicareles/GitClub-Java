@@ -36,22 +36,6 @@ public class CrashController {
     @Autowired
     CrashRepository crashRepository;
 
-    @ApiOperation(value = "上传APP错误信息", notes = "上传APP错误信息接口")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "phone_system", value = "手机系统", required = false ,dataType = "string"),
-            @ApiImplicitParam(name = "phone_brands", value = "手机品牌", required = false ,dataType = "string"),
-            @ApiImplicitParam(name = "phone_model", value = "手机型号", required = false ,dataType = "string"),
-            @ApiImplicitParam(name = "phone_system_version", value = "手机系统版本", required = false ,dataType = "string"),
-            @ApiImplicitParam(name = "app_package", value = "app包名", required = false ,dataType = "string"),
-            @ApiImplicitParam(name = "app_channel", value = "app渠道", required = false ,dataType = "string"),
-            @ApiImplicitParam(name = "app_version_name", value = "app版本名", required = false ,dataType = "string"),
-            @ApiImplicitParam(name = "app_version_code", value = "app版本号", required = false ,dataType = "string"),
-            @ApiImplicitParam(name = "exception_info", value = "异常崩溃日志信息", required = true ,dataType = "string"),
-//            @ApiImplicitParam(name = "memory_info", value = "手机内存信息", required = false ,dataType = "string"),
-//            @ApiImplicitParam(name = "device_info", value = "手机设备信息", required = false ,dataType = "string"),
-//            @ApiImplicitParam(name = "system_info", value = "手机系统信息", required = false ,dataType = "string"),
-//            @ApiImplicitParam(name = "secure_info", value = "安全信息", required = false ,dataType = "string")
-    })
     @PostMapping(value = "/uploadCrashInfo")
     public Result<Crash> uploadCrashInfo(@Valid Crash crashInfo, BindingResult bindingResult) {
         if (bindingResult.hasErrors()){

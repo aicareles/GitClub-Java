@@ -92,7 +92,7 @@ public class ESController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "当前页数", required = true, dataType = "int"),
             @ApiImplicitParam(name = "size", value = "返回的文章数量", required = true, dataType = "int"),
-            @ApiImplicitParam(name = "query", value = "关键字---标签、标题、描述", required = true, dataType = "string")
+            @ApiImplicitParam(name = "query", value = "关键字---标签、文章分类、标题、描述", required = true, dataType = "string")
     })
     @RequestMapping("/query")
     public Result<ESArticle> query(@RequestParam Integer page, @RequestParam Integer size, @RequestParam String query) {
@@ -103,6 +103,7 @@ public class ESController {
         queryBuilder.must()
                 .add(QueryBuilders.boolQuery()
                         .should(QueryBuilders.matchQuery("tag", query))
+                        .should(QueryBuilders.matchQuery("category", query))
                         .should(QueryBuilders.matchQuery("title", query))
                         .should(QueryBuilders.matchQuery("des", query)));
 

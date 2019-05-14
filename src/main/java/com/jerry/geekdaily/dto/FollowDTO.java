@@ -1,14 +1,11 @@
 package com.jerry.geekdaily.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.Date;
 
+@Data
 public class FollowDTO implements Serializable {
 
     private Integer id;
@@ -30,80 +27,4 @@ public class FollowDTO implements Serializable {
     //当前关注状态   0为未关注  1为已关注
     @NotNull(message="关注状态不能为空！")
     private Integer status;
-
-    public FollowDTO(){}
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public int getFansId() {
-        return fansId;
-    }
-
-    public void setFansId(int fansId) {
-        this.fansId = fansId;
-    }
-
-    public String getNickName() {
-        return nickName;
-    }
-
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public String getFanNickName() {
-        return fanNickName;
-    }
-
-    public void setFanNickName(String fanNickName) {
-        this.fanNickName = fanNickName;
-    }
-
-    public String getFanAvatar() {
-        return fanAvatar;
-    }
-
-    public void setFanAvatar(String fanAvatar) {
-        this.fanAvatar = fanAvatar;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    @Override
-    public String toString() {
-        return "Follow{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", fansId=" + fansId +
-                ", status=" + status +
-                '}';
-    }
 }

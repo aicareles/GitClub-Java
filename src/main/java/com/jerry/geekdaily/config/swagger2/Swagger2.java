@@ -31,7 +31,7 @@ public class Swagger2 {
                 .contact(new Contact("502工作室", "http://www.502tech.com", "tech_502@163.com"))
                 .description("极客日报后台api接口文档")
                 .termsOfServiceUrl("http://47.104.93.195/")
-                .version("1.0")
+                .version("1.1.0")
                 .build();
     }
 

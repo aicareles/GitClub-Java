@@ -1,12 +1,21 @@
 package com.jerry.geekdaily.service.impl;
 
+import com.jerry.geekdaily.base.ResultCode;
+import com.jerry.geekdaily.base.ResultUtils;
 import com.jerry.geekdaily.domain.Article;
+import com.jerry.geekdaily.domain.ESArticle;
+import com.jerry.geekdaily.domain.User;
+import com.jerry.geekdaily.dto.UpdateArticleDTO;
+import com.jerry.geekdaily.enums.AdminEnum;
 import com.jerry.geekdaily.repository.ArticleRepository;
 import com.jerry.geekdaily.service.ArticleService;
+import com.jerry.geekdaily.util.BeanCopyUtil;
+import com.jerry.geekdaily.util.LinkUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;

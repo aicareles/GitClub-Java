@@ -1,6 +1,7 @@
 package com.jerry.geekdaily.service;
 
 import com.jerry.geekdaily.domain.Article;
+import com.jerry.geekdaily.dto.UpdateArticleDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +29,5 @@ public interface ArticleService {
     Article saveArticle(Article article);
 
     void deleteById(int article_id);
+
 }

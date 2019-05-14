@@ -140,7 +140,7 @@
                         <div id="tbody" th:fragment="fragment">
                         <tr id="articles" th:each="article : ${articleList}">
                             <td><input type="checkbox" class="input-control" name="checkbox[]" value=""/></td>
-                            <td th:if="${article.user != null}" th:text="${article.user.nick_name}"></td>
+                            <td th:if="${article.user != null}" th:text="${article.user.nickName}"></td>
                             <td th:if="${article.user == null}" th:text="匿名用户"></td>
                             <td style="max-width: 200px" th:text="${article.title}"></td>
                             <td style="max-width: 200px" th:text="${article.des}"></td>
@@ -148,18 +148,18 @@
                                 <a th:href="${article.link}" target="_blank" th:text="${article.link}"/>
                             </td>
                             <td style="max-width: 200px; text-overflow: ellipsis;overflow:hidden;">
-                                <a th:href="${article.img_url}" target="_blank" th:text="${article.img_url}"/>
+                                <a th:href="${article.imgUrl}" target="_blank" th:text="${article.imgUrl}"/>
                             </td>
                             <td class="hidden-sm" th:text="${article.stars}"></td>
                             <td class="hidden-sm" th:text="${article.comments}"></td>
                             <td class="hidden-sm" th:text="${article.views}"></td>
                             <td th:text="${#dates.format(article.date, 'yyyy-MM-dd HH:mm:ss')}">2015-12-03</td>
-                            <td th:switch="${article.review_status}">
-                                <a th:onclick="'javascript:editArticle(\''+${article.article_id}+'\')'">修改</a>
-                                <a th:onclick="'javascript:deleteArticle(\''+${article.article_id}+'\')'">删除</a>
-                                <a th:case="1" th:onclick="'javascript:reviewArticle(\''+${article.article_id}+'\')'">已通过</a>
-                                <a th:case="-1" th:onclick="'javascript:reviewArticle(\''+${article.article_id}+'\')'">未通过</a>
-                                <a th:case="*" th:onclick="'javascript:reviewArticle(\''+${article.article_id}+'\')'">审核中</a>
+                            <td th:switch="${article.reviewStatus}">
+                                <a th:onclick="'javascript:editArticle(\''+${article.articleId}+'\')'">修改</a>
+                                <a th:onclick="'javascript:deleteArticle(\''+${article.articleId}+'\')'">删除</a>
+                                <a th:case="1" th:onclick="'javascript:reviewArticle(\''+${article.articleId}+'\')'">已通过</a>
+                                <a th:case="-1" th:onclick="'javascript:reviewArticle(\''+${article.articleId}+'\')'">未通过</a>
+                                <a th:case="*" th:onclick="'javascript:reviewArticle(\''+${article.articleId}+'\')'">审核中</a>
                             </td>
                         </tr>
                         </div>

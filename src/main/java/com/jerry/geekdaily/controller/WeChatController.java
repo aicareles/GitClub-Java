@@ -46,22 +46,13 @@ public class WeChatController {
      * @return 登陆成功的用户对象
      */
     @ApiOperation(value = "微信用户登陆", notes = "微信用户登陆接口")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "code", value = "小程序临时登录凭证code", required = true, dataType = "string"),
-            @ApiImplicitParam(name = "nickName", value = "用户昵称", required = true, dataType = "string"),
-            @ApiImplicitParam(name = "avatarUrl", value = "用户头像", required = false, dataType = "string")
-//            @ApiImplicitParam(name = "rawData", value = "用户非敏感信息", required = true ,dataType = "string")
-    })
     @PostMapping(value = "/WxLogin")
     public Result<User> WxLogin(@RequestParam("code") String code,
                                 @RequestParam("nickName") String nickName,
                                 @RequestParam("avatarUrl") String avatarUrl) {//HttpServletRequest request,
         String openid = null;
         String sessionKey = null;
-//        RawData data = null;
         if (!StringUtils.isEmpty(code) && !StringUtils.isEmpty(nickName)) {
-//            data = JSON.parseObject(rawData, RawData.class);
-//            logger.info("data:"+rawData);
             JSONObject jsonObject = getSessionKeyOrOpenId(code);
             if (!StringUtils.isEmpty(jsonObject) && StringUtils.isEmpty(jsonObject.getString("errmsg"))) {
                 openid = jsonObject.getString("openid");
@@ -73,12 +64,12 @@ public class WeChatController {
                 } else {
                     //不存在   则插入用户
                     user = new User();
-                    user.setNick_name(nickName);
+                    user.setNickName(nickName);
                     user.setAvatar(avatarUrl);
 //                    user.setCity(data.getCity());
 //                    user.setGender(data.getGender());
-                    user.setOpen_id(openid);
-                    user.setSession_key(sessionKey);
+                    user.setOpenId(openid);
+                    user.setSessionKey(sessionKey);
                     user.setDate(new Date());
                     user = userService.register(user);
                     return ResultUtils.ok(user);

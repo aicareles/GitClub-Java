@@ -5,6 +5,8 @@ import java.lang.annotation.RetentionPolicy;
 
 public class Constans {
 
+   public static final long FILE_MAX_LIMIT = 10 * 1024 * 1024;
+
     @Retention(RetentionPolicy.SOURCE)
     public @interface RedisKey {
         String ARTICLE_TOTAL_VIEWS = "article_total_views";//当天文章总阅读数
