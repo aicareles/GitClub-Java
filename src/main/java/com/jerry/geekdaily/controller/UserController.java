@@ -3,6 +3,7 @@ package com.jerry.geekdaily.controller;
 import com.jerry.geekdaily.base.Result;
 import com.jerry.geekdaily.base.ResultCode;
 import com.jerry.geekdaily.base.ResultUtils;
+import com.jerry.geekdaily.config.jwt.JwtUtil;
 import com.jerry.geekdaily.domain.User;
 import com.jerry.geekdaily.service.UserService;
 import com.jerry.geekdaily.util.CookieUtils;
@@ -11,10 +12,9 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,8 +58,10 @@ public class UserController {
         if(!StringUtils.isEmpty(userName) && !StringUtils.isEmpty(password)){
             User user = userService.login(userName, password);
             if(user != null){
+                String token = JwtUtil.sign(userName, password);
+                user.setToken(token);
                 //保存到cookie中
-                CookieUtils.addCookie(user.getUserId()+"", user.getNickName(), response, request);
+                CookieUtils.addCookie(user.getUserId()+"", token, response, request);
                 return ResultUtils.ok(user);
             }else {
                 return ResultUtils.error(ResultCode.INVALID_USERNAME_PASSWORD);
@@ -67,6 +69,12 @@ public class UserController {
         }else {
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
         }
+    }
+
+    @RequestMapping(path = "/401")
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Result unauthorized() {
+        return ResultUtils.error(ResultCode.UNAUTHORIZED);
     }
 
 }

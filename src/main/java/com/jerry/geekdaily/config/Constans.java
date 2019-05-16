@@ -8,6 +8,12 @@ public class Constans {
    public static final long FILE_MAX_LIMIT = 10 * 1024 * 1024;
 
     @Retention(RetentionPolicy.SOURCE)
+    public @interface UserRole {
+        String ADMIN = "admin";//管理员
+        String USER = "user";//普通用户
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
     public @interface RedisKey {
         String ARTICLE_TOTAL_VIEWS = "article_total_views";//当天文章总阅读数
     }

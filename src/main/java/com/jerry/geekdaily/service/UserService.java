@@ -12,7 +12,9 @@ public interface UserService {
 
     User findUserByOpenId(String open_id);
 
-    User login(String userName, String password);
+    User login(String username, String password);
 
     User register(User user);
+
+    User findByUserName(String username);
 }

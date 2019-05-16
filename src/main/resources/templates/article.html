@@ -387,14 +387,21 @@
 <script>
     //是否确认删除
     function deleteArticle(article_id){
-        if (window.confirm("此操作不可逆，是否确认？")) {
+        if (window.confirm("是否确认删除该文章？")) {
             $.ajax({
-                type: "GET",
+                type: "POST",
                 url: "/geekdaily/deleteArticle",
                 data: {"article_id": article_id},
                 cache: false, //不缓存此页面
                 success: function (data) {
-                    window.location.reload();
+                    if(data.code === 0){
+                        alert(data.data);
+                        window.location.reload();
+                    }else {
+                        window.alert(data.msg);
+                    }
+                },error:function (XMLHttpRequest) {
+                    window.alert("错误信息:" + XMLHttpRequest.responseText);
                 }
             });
         }
@@ -405,32 +412,28 @@
     }
     //审核文章
     function reviewArticle(article_id) {
-        var is_pass = true;
-        if (window.confirm("是否审核通过？")) {
-            is_pass = true;
-        }else {
-            is_pass = false;
-        }
-        var user_id = parseInt(getCookie("geek_userId"));
+        var is_pass = window.confirm("是否审核通过？");
+        var token = getCookie("geek_token");
         $.ajax({
             type: "POST",
+            headers: {
+                'Authorization': token
+            },
             url: "/geekdaily/reviewArticle",
             data: {
-                "user_id": user_id,
                 "article_id": article_id,
                 "is_pass": is_pass
             },
             cache: false, //不缓存此页面
             success: function (data) {
-                if(data.code == 0){
+                if(data.code === 0){
                     alert(data.data);
                     window.location.reload();
                 }else {
-                    window.alert(data.data);
+                    window.alert(data.msg);
                 }
-            },
-            error:function (data) {
-                window.alert("出错了");
+            }, error:function (XMLHttpRequest) {
+                window.alert("错误信息:" + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
             }
         });
     }

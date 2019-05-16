@@ -38,4 +38,9 @@ public class UserServiceImpl implements UserService {
     public User register(User user) {
         return userRepository.saveAndFlush(user);
     }
+
+    @Override
+    public User findByUserName(String username) {
+        return userRepository.findByUserName(username);
+    }
 }

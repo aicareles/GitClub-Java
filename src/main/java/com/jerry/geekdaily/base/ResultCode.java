@@ -11,10 +11,6 @@ public enum ResultCode {
      */
     SUCCESS(0, "success"),
     /**
-     * 未登录/token过期
-     */
-    UNAUTHORIZED(1002, "获取登录用户信息失败"),
-    /**
      * 失败
      */
     ERROR(1000, "操作失败"),
@@ -58,11 +54,6 @@ public enum ResultCode {
     INVALID_PARAM_EMPTY(1011, "请求参数为空"),
 
     /**
-     * 没有权限
-     */
-    USER_NO_PERMITION(1013, "当前用户无该接口权限"),
-
-    /**
      * 未查询到相关信息
      */
     NO_FIND_THINGS(1012, "未查询到相关信息"),
@@ -100,7 +91,17 @@ public enum ResultCode {
     /**
      * 上传内容最大不能超过10M
      */
-    UPLOAD_FILE_LIMIT(1020, "上传内容最大不能超过10M");
+    UPLOAD_FILE_LIMIT(1020, "上传内容最大不能超过10M"),
+
+    /**
+     * 未登录/token过期
+     */
+    TOKEN_EXPIRED(401, "token验证失败,请重新登录!"),
+
+    /**
+     * 没有权限
+     */
+    UNAUTHORIZED(403, "您没有访问权限");
 
     public int code;
     public String msg;

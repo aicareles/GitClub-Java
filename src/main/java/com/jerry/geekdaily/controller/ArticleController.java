@@ -21,6 +21,8 @@ import com.jerry.geekdaily.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -154,6 +156,7 @@ public class ArticleController {
     }
 
     @ApiOperation(value = "删除文章")
+    @RequiresRoles(value = Constans.UserRole.ADMIN)
     @PostMapping("/deleteArticle")
     public Result<Article> deleteArticle(@RequestParam("article_id") int article_id) {
         if (StringUtils.isEmpty(article_id)) {
@@ -173,6 +176,7 @@ public class ArticleController {
 
     @ApiOperation(value = "获取文章列表")
     @PostMapping("/getArticleList")
+    @RequiresAuthentication
     public Result<Article> getArticleList(@RequestParam("page") Integer page,
                                           @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
         Page<Article> pages = articleService.findAllReviewedArticles(PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
@@ -348,28 +352,20 @@ public class ArticleController {
     }
 
     @ApiOperation(value = "文章审核", notes = "文章审核接口")
+    @RequiresRoles(value = Constans.UserRole.ADMIN)
     @PostMapping("/reviewArticle")
-    public Result<Boolean> reviewArticle(@RequestParam int user_id,
-                                         @RequestParam int article_id,
-                                         @RequestParam boolean is_pass){
-        if(StringUtils.isEmpty(user_id) || StringUtils.isEmpty(article_id)){
+    public Result<Boolean> reviewArticle(@RequestParam int article_id, @RequestParam boolean is_pass){
+        if(StringUtils.isEmpty(is_pass) || StringUtils.isEmpty(article_id)){
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
         }
         Article article = articleService.findArticleByArticleId(article_id);
         if (StringUtils.isEmpty(article)) {
             return ResultUtils.error(ResultCode.NO_FIND_ARTICLE);
         }
-        //判断是否为管理员
-        User user = userService.findUserByUserId(user_id);
-        if (null != user) {
-            if (user.getAdminStatus() != AdminEnum.ADMIN.getAdmin_status()) {
-                return ResultUtils.error(ResultCode.NO_REVIEW_PERMITION);
-            }
-            article.setReviewStatus(is_pass ? 1 : -1);
-            articleService.saveArticle(article);
-            //插入数据到引擎
-            articleSearchRepository.save(new ESArticle(article));
-        }
+        article.setReviewStatus(is_pass ? 1 : -1);
+        articleService.saveArticle(article);
+        //插入数据到引擎
+        articleSearchRepository.save(new ESArticle(article));
         return ResultUtils.ok("审核操作成功!");
     }
 }

@@ -5,6 +5,10 @@ spring:
     password: root
     driver-class-name: com.mysql.jdbc.Driver
 
+#    自动执行sql脚本
+#    schema: classpath:import.sql
+#    initialization-mode: always
+
   jpa:
     database-platform: org.hibernate.dialect.MySQL5Dialect
     hibernate:
