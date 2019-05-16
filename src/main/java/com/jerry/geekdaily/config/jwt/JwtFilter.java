@@ -2,16 +2,22 @@ package com.jerry.geekdaily.config.jwt;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.jerry.geekdaily.annotation.Pass;
 import com.jerry.geekdaily.base.Result;
 import com.jerry.geekdaily.base.ResultCode;
 import com.jerry.geekdaily.base.ResultUtils;
+import com.jerry.geekdaily.config.Constans;
 import com.jerry.geekdaily.domain.User;
 import com.jerry.geekdaily.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -19,9 +25,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 
 @Slf4j
-public class JwtFilter extends BasicHttpAuthenticationFilter {
+@Controller
+@Component
+public class JwtFilter extends BasicHttpAuthenticationFilter implements HandlerInterceptor {
 
     @Autowired
     UserService userService;
@@ -31,6 +40,22 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         HttpServletRequest req = (HttpServletRequest) request;
         String authorization = req.getHeader("Authorization");
         return authorization != null;
+    }
+
+    @Override
+    public boolean preHandle(HttpServletRequest request,
+                             HttpServletResponse response, Object handler) throws Exception {
+        //如果不是映射到方法直接通过
+        if (!(handler instanceof HandlerMethod)) {
+            return true;
+        }
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
+        Method method = handlerMethod.getMethod();
+        //方法注名@Pass，直接放行
+        if (method.getAnnotation(Pass.class) != null) {
+            Constans.isPass = true;
+        }
+        return true;
     }
 
     /**

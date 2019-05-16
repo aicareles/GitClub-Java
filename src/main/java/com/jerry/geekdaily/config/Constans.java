@@ -2,10 +2,14 @@ package com.jerry.geekdaily.config;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Constans {
 
-   public static final long FILE_MAX_LIMIT = 10 * 1024 * 1024;
+    public static final long FILE_MAX_LIMIT = 10 * 1024 * 1024;
+    public static Set<String> METHOD_URL_SET = new HashSet<>();
+    public static Boolean isPass = false;//是否放行token验证
 
     @Retention(RetentionPolicy.SOURCE)
     public @interface UserRole {

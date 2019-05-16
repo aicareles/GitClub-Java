@@ -1,5 +1,6 @@
 package com.jerry.geekdaily.config;
 
+import com.jerry.geekdaily.config.jwt.JwtFilter;
 import com.jerry.geekdaily.interceptor.LoginInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,11 @@ import org.springframework.web.servlet.view.JstlView;
 @Configuration
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
-    private static Logger logger = LoggerFactory.getLogger(WebMvcConfig.class);
+    @Autowired
+    LoginInterceptor loginInterceptor;
+
+    @Autowired
+    JwtFilter jwtFilter;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -34,14 +39,12 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         super.addResourceHandlers(registry);
     }
 
-
-    @Autowired
-    LoginInterceptor loginInterceptor;
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 日志拦截器
         //registry.addInterceptor(logInterceptor).addPathPatterns("/**");
+        //token验证拦截
+        registry.addInterceptor(jwtFilter).addPathPatterns("/**");
         // 登录拦截器
         registry.addInterceptor(loginInterceptor)
 //                .addPathPatterns("/**")

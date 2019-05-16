@@ -1,5 +1,8 @@
 package com.jerry.geekdaily.controller;
 
+import com.jerry.geekdaily.annotation.AccessLimit;
+import com.jerry.geekdaily.annotation.Pass;
+import com.jerry.geekdaily.annotation.ValidationParam;
 import com.jerry.geekdaily.base.Result;
 import com.jerry.geekdaily.base.ResultCode;
 import com.jerry.geekdaily.base.ResultUtils;
@@ -158,7 +161,7 @@ public class ArticleController {
     @ApiOperation(value = "删除文章")
     @RequiresRoles(value = Constans.UserRole.ADMIN)
     @PostMapping("/deleteArticle")
-    public Result<Article> deleteArticle(@RequestParam("article_id") int article_id) {
+    public Result<Article> deleteArticle(@RequestParam int article_id) {
         if (StringUtils.isEmpty(article_id)) {
             return ResultUtils.error(ResultCode.INVALID_PARAM_EMPTY);
         }
@@ -175,8 +178,9 @@ public class ArticleController {
     }
 
     @ApiOperation(value = "获取文章列表")
+    @Pass
+    @AccessLimit(perSecond = 50,timeOut = 500)
     @PostMapping("/getArticleList")
-    @RequiresAuthentication
     public Result<Article> getArticleList(@RequestParam("page") Integer page,
                                           @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
         Page<Article> pages = articleService.findAllReviewedArticles(PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
@@ -184,6 +188,8 @@ public class ArticleController {
     }
 
     @ApiOperation(value = "根据分类获取文章", notes = "根据分类获取文章接口")
+    @Pass
+    @AccessLimit(perSecond = 50,timeOut = 500)
     @PostMapping("/getArticleListByCategory")
     public Result<Article> getArticleListByCategory(@RequestParam("page") Integer page,
                                                     @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
@@ -353,6 +359,7 @@ public class ArticleController {
 
     @ApiOperation(value = "文章审核", notes = "文章审核接口")
     @RequiresRoles(value = Constans.UserRole.ADMIN)
+    @RequiresAuthentication
     @PostMapping("/reviewArticle")
     public Result<Boolean> reviewArticle(@RequestParam int article_id, @RequestParam boolean is_pass){
         if(StringUtils.isEmpty(is_pass) || StringUtils.isEmpty(article_id)){
