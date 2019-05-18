@@ -86,8 +86,8 @@ public class HomeController {
     }
 
     @GetMapping(value = ("/webUpdateArticle"))
-    public ModelAndView updateArticle(@RequestParam int article_id) {
-        Article article = articleService.findArticleByArticleId(article_id);
+    public ModelAndView updateArticle(@RequestParam int articleId) {
+        Article article = articleService.findArticleByArticleId(articleId);
         ModelAndView view = new ModelAndView("update-article");
         view.addObject("article", article);
         return view;

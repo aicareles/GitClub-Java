@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     @ResponseBody
     public Result resultError(Exception ex){
-        return ResultUtils.error(String.valueOf(ex));
+        return ResultUtils.error(String.valueOf(ex.getMessage()));
     }
 
     // 捕捉shiro的异常

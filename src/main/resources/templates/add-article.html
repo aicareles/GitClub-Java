@@ -408,7 +408,7 @@ function uploadImg() {
             return false;
         }
         var formdata = new FormData();
-        formdata.append('article_img',file);
+        formdata.append('articleImg',file);
         $.ajax({
             type: "POST",
             url: "/geekdaily/uploadArticleImg",
@@ -421,8 +421,8 @@ function uploadImg() {
                 //前端调用成功后，可以处理后端传回的json格式数据。
                 if(data.code == 0){
                     var img_url = document.getElementById("img_url");
-                    if(data.data["article_img"] != null){
-                        img_url.value = data.data["article_img"];
+                    if(data.data["articleImg"] != null){
+                        img_url.value = data.data["articleImg"];
                     }
                     window.alert("上传图片成功!");
                 }else {
@@ -441,24 +441,24 @@ function uploadArticle() {
     var title = document.getElementById("title").value;
     var des = document.getElementById("des").value;
     var userId = getCookie("geek_userId");
-    var contributor_id = parseInt(userId);
+    var contributorId = parseInt(userId);
     var category = $("input[name='category']:checked").val();
-    var child_category = $("input[name='child_category']:checked").val();
+    var childCategory = $("input[name='child_category']:checked").val();
     var rank = $("input[name='rank']:checked").val();
     var link = document.getElementById("link").value;
-    var img_url = document.getElementById("img_url").value;
+    var imgUrl = document.getElementById("img_url").value;
     $.ajax({
         type: "POST",
         url: "/geekdaily/uploadArticle",
         data: {
             "title":title,
             "des":des,
-            "contributor_id":contributor_id,
+            "contributorId":contributorId,
             "category":category,
-            "child_category":child_category,
+            "childCategory":childCategory,
             "rank":rank,
             "link":link,
-            "img_url":img_url
+            "imgUrl":imgUrl
         },
         cache: false, //不缓存此页面
         success: function(data){

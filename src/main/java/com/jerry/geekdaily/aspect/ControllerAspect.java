@@ -5,10 +5,9 @@ import com.jerry.geekdaily.annotation.Log;
 import com.jerry.geekdaily.annotation.ParamXssPass;
 import com.jerry.geekdaily.annotation.ValidationParam;
 import com.jerry.geekdaily.util.StringUtil;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
@@ -23,8 +22,7 @@ import java.lang.reflect.Method;
 @Configuration
 public class ControllerAspect {
 
-//    @Pointcut("execution(* com.jerry.geekdaily.controller..*(..))  ")
-    @Pointcut("execution(public * com.jerry.geekdaily.controller.ArticleController.*(..))")
+    @Pointcut("execution(public * com.jerry.geekdaily.controller..*(..)) ")
     public void aspect() {
     }
 

@@ -140,7 +140,7 @@
                         <div id="tbody" th:fragment="fragment">
                         <tr id="articles" th:each="article : ${articleList}">
                             <td><input type="checkbox" class="input-control" name="checkbox[]" value=""/></td>
-                            <td th:if="${article.user != null}" th:text="${article.user.nickName}"></td>
+                            <td th:if="${article.user != null}" th:text="${article.user.userName}"></td>
                             <td th:if="${article.user == null}" th:text="匿名用户"></td>
                             <td style="max-width: 200px" th:text="${article.title}"></td>
                             <td style="max-width: 200px" th:text="${article.des}"></td>
@@ -391,7 +391,7 @@
             $.ajax({
                 type: "POST",
                 url: "/geekdaily/deleteArticle",
-                data: {"article_id": article_id},
+                data: {"articleId": article_id},
                 cache: false, //不缓存此页面
                 success: function (data) {
                     if(data.code === 0){
@@ -408,7 +408,7 @@
     }
     //修改编辑文章
     function editArticle(article_id) {
-        window.location.href = "/geekdaily/webUpdateArticle?article_id="+article_id;
+        window.location.href = "/geekdaily/webUpdateArticle?articleId="+article_id;
     }
     //审核文章
     function reviewArticle(article_id) {
@@ -421,8 +421,8 @@
             },
             url: "/geekdaily/reviewArticle",
             data: {
-                "article_id": article_id,
-                "is_pass": is_pass
+                "articleId": article_id,
+                "isPass": is_pass
             },
             cache: false, //不缓存此页面
             success: function (data) {

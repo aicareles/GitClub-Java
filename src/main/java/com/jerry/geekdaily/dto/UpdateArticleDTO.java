@@ -1,6 +1,8 @@
 package com.jerry.geekdaily.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -8,9 +10,11 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Data
+@ApiModel(value="更新文章对象",description="更新文章对象")
 public class UpdateArticleDTO implements Serializable {
 
     @NotNull(message="文章ID不能为空！")
+    @ApiModelProperty(value = "文章id", required = true)
     private Integer articleId;
 
     private String title;
@@ -24,6 +28,7 @@ public class UpdateArticleDTO implements Serializable {
     private String link;//源url
 
     @NotNull(message="编辑者ID不能为空！")
+    @ApiModelProperty(value = "编辑者id", required = true)
     private Integer contributorId;//贡献者id(user_id)
 
     private String category;//文章分类（Android、iOS、Java等）

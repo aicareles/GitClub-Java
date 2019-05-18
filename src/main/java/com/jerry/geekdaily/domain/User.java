@@ -2,17 +2,15 @@ package com.jerry.geekdaily.domain;
 
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class User implements Serializable {
 
     @Id
@@ -28,7 +26,7 @@ public class User implements Serializable {
     //微信的session_key
     private String sessionKey;
 
-    private String nickName;
+    private String userName;
 
     private String email;
 
@@ -45,6 +43,7 @@ public class User implements Serializable {
     private String city;
 
     //注册时间
+    @CreatedDate
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date date;
 
@@ -88,12 +87,12 @@ public class User implements Serializable {
         this.sessionKey = sessionKey;
     }
 
-    public String getNickName() {
-        return nickName;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getEmail() {

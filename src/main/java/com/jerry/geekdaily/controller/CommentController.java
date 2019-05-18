@@ -30,22 +30,14 @@ import java.util.List;
 public class CommentController {
 
     @Autowired
-    private ArticleService articleService;
-    @Autowired
     private CommentService commentService;
-    @Autowired
-    private ESArticleSearchRepository articleSearchRepository;
 
     @ApiOperation(value = "获取文章评论列表")
     @PostMapping("/getArticleComments")
     public Result<Comment> getArticleComments(@RequestParam("page") Integer page,
                                               @RequestParam(value = "size", required = false, defaultValue = "10") Integer size,
-                                              @RequestParam("article_id") int article_id) {
-        Article article = articleService.findArticleByArticleId(article_id);
-        if (StringUtils.isEmpty(article)) {
-            return ResultUtils.error("未发现相关文章!");
-        }
-        Page<Comment> pages = commentService.getAllByArticleId(article_id, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
+                                              @RequestParam("articleId") int articleId) {
+        Page<Comment> pages = commentService.getAllByArticleId(articleId, PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
         List<Comment> comments = pages.getContent();
         return ResultUtils.ok(comments);
     }
@@ -56,17 +48,8 @@ public class CommentController {
         if (bindingResult.hasErrors()) {
             return ResultUtils.error(bindingResult.getFieldError().getDefaultMessage());
         }
-        Article article = articleService.findArticleByArticleId(commentDTO.getArticleId());
-        if (StringUtils.isEmpty(article)) {
-            return ResultUtils.error("未发现相关文章!");
-        }
-        Comment comment = new Comment();
-        BeanCopyUtil.beanCopy(commentDTO, comment);
-        commentService.saveComment(comment);
-        article.setComments(article.getComments() + 1);
-        articleService.saveArticle(article);
-        articleSearchRepository.save(new ESArticle(article));//更新数据到ES
-        return ResultUtils.ok(comment);
+        commentService.commentArticle(commentDTO);
+        return ResultUtils.ok("文章评论成功");
     }
 
 }

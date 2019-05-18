@@ -22,9 +22,6 @@ public class SheduledTaskController {
     @Autowired
     private ArticleService articleService;
 
-    @Autowired
-    private ESArticleSearchRepository articleSearchRepository;
-
 //    @Autowired
 //    private WeChatController weChatController;
 
@@ -47,7 +44,6 @@ public class SheduledTaskController {
             articles.forEach(article -> {
                 article.setDate(new Date());
                 articleService.saveArticle(article);
-                articleSearchRepository.save(new ESArticle(article));
             });
         } catch (ParseException e) {
             e.printStackTrace();

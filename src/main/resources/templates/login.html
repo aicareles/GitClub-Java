@@ -39,7 +39,7 @@
             <!--// action="/geekdaily/adminLogin"    action="/geekdaily/doLogin"-->
             <form class="m-t" method="post" enctype="multipart/form-data">
                 <div class="form-group">
-                    <input type="text" id="userName" name="userName" class="form-control" placeholder="用户名" required="">
+                    <input type="text" id="username" name="username" class="form-control" placeholder="用户名" required="">
                 </div>
                 <div class="form-group">
                     <input type="password" id="password" name="password" class="form-control" placeholder="密码" required="">
@@ -58,12 +58,12 @@
     <!--<script type="text/javascript" src="http://tajs.qq.com/stats?sId=9051096" charset="UTF-8"></script>-->
     <script>
         function login() {
-            var userName = document.getElementById("userName").value;
+            var username = document.getElementById("username").value;
             var password = document.getElementById("password").value;
             $.ajax({
                 type: "POST",
                 url: "/geekdaily/login",
-                data: {"userName":userName,"password":password},
+                data: {"username":username,"password":password},
                 cache: false, //不缓存此页面
                 success: function(data){
                     //前端调用成功后，可以处理后端传回的json格式数据。

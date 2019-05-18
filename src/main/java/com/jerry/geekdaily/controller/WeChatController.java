@@ -11,8 +11,6 @@ import com.jerry.geekdaily.service.UserService;
 import com.jerry.geekdaily.util.HttpUtils;
 import com.jerry.geekdaily.util.SignUtils;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +62,7 @@ public class WeChatController {
                 } else {
                     //不存在   则插入用户
                     user = new User();
-                    user.setNickName(nickName);
+                    user.setUserName(nickName);
                     user.setAvatar(avatarUrl);
 //                    user.setCity(data.getCity());
 //                    user.setGender(data.getGender());
@@ -85,12 +83,12 @@ public class WeChatController {
     /**
      * 小程序端获取access_token
      *
-     * @param grant_type 获取 access_token 填写 client_credential
-     * @param appid      第三方用户唯一凭证
+     * @param grantType 获取 access_token 填写 client_credential
+     * @param appId      第三方用户唯一凭证
      * @param secret     第三方用户唯一凭证密钥，即appsecret
      * @return
      */
-    public static JSONObject getAccess_token(String grant_type, String appid, String secret) {
+    public static JSONObject getAccess_token(String grantType, String appId, String secret) {
         String requestUrl = "https://api.weixin.qq.com/cgi-bin/token";
         StringBuffer requestUrlParam = new StringBuffer();
         requestUrlParam.append("grant_type" + "=" + "client_credential");
