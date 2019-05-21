@@ -1,6 +1,14 @@
 package com.jerry.geekdaily.controller;
 
+import com.jerry.geekdaily.base.Result;
+import com.jerry.geekdaily.base.ResultUtils;
+import com.jerry.geekdaily.domain.Article;
+import com.jerry.geekdaily.domain.ESArticle;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 //@CacheConfig(cacheNames = "UtilsController")
 @RestController
@@ -63,5 +71,22 @@ public class UtilsController {
 //        articleRepository.saveAll(tempArticles);
 //        articleSearchRepository.saveAll(tempESArticles);
 //        return ResultUtils.ok(true);
+//    }
+
+//    @PostMapping("deleteAllEs")
+//    public Result<Boolean> deleteAllEs(){
+//        esArticleSearchRepository.deleteAll();
+//        return ResultUtils.ok("OK");
+//    }
+//
+//    @PostMapping("addArticlesToEs")
+//    public Result<Boolean> addArticlesToEs(){
+//        List<Article> all = articleRepository.findAll();
+//        List<ESArticle> allES = new ArrayList<>();
+//        all.forEach(article -> {
+//            allES.add(new ESArticle(article));
+//        });
+//        esArticleSearchRepository.saveAll(allES);
+//        return ResultUtils.ok("OK");
 //    }
 }

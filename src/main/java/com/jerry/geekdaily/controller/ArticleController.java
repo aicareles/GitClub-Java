@@ -2,44 +2,40 @@ package com.jerry.geekdaily.controller;
 
 import com.jerry.geekdaily.annotation.AccessLimit;
 import com.jerry.geekdaily.annotation.Pass;
-import com.jerry.geekdaily.annotation.ValidationParam;
 import com.jerry.geekdaily.base.Result;
 import com.jerry.geekdaily.base.ResultCode;
 import com.jerry.geekdaily.base.ResultUtils;
 import com.jerry.geekdaily.config.Constans;
 import com.jerry.geekdaily.domain.Article;
-import com.jerry.geekdaily.domain.ESArticle;
 import com.jerry.geekdaily.domain.Stars;
 import com.jerry.geekdaily.domain.User;
 import com.jerry.geekdaily.dto.StarsDTO;
 import com.jerry.geekdaily.dto.UpdateArticleDTO;
-import com.jerry.geekdaily.enums.AdminEnum;
-import com.jerry.geekdaily.enums.StarStatusEnum;
-import com.jerry.geekdaily.repository.ESArticleSearchRepository;
 import com.jerry.geekdaily.service.ArticleService;
-import com.jerry.geekdaily.service.CommentService;
 import com.jerry.geekdaily.service.StarsService;
 import com.jerry.geekdaily.service.UserService;
-import com.jerry.geekdaily.util.*;
+import com.jerry.geekdaily.util.FileUtils;
+import com.jerry.geekdaily.util.OSSUploadUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Api(value = "ArticleController", description = "文章管理相关接口")
