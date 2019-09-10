@@ -6,7 +6,6 @@ import com.jerry.geekdaily.domain.Article;
 import com.jerry.geekdaily.domain.Comment;
 import com.jerry.geekdaily.domain.ESArticle;
 import com.jerry.geekdaily.dto.CommentDTO;
-import com.jerry.geekdaily.repository.ESArticleSearchRepository;
 import com.jerry.geekdaily.service.ArticleService;
 import com.jerry.geekdaily.service.CommentService;
 import com.jerry.geekdaily.util.BeanCopyUtil;

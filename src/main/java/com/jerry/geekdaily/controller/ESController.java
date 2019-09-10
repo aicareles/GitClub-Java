@@ -160,4 +160,30 @@ public class ESController {
 //        }
 //        return list;
 //    }
+
+    @ApiOperation(value = "网页端全局关键字查询", notes = "网页端全局关键字查询接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "当前页数", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "size", value = "返回的文章数量", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "query", value = "关键字---标签、文章分类、标题、描述", required = true, dataType = "string")
+    })
+    @RequestMapping("/queryWeb")
+    public Result<ESArticle> queryWeb(@RequestParam Integer page, @RequestParam Integer size, @RequestParam String query) {
+        // 分页参数
+        Pageable pageable = new PageRequest(page, size);
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+        queryBuilder.must()
+                .add(QueryBuilders.boolQuery()
+                        .should(QueryBuilders.matchQuery("tag", query))
+                        .should(QueryBuilders.matchQuery("category", query))
+                        .should(QueryBuilders.matchQuery("title", query))
+                        .should(QueryBuilders.matchQuery("des", query)));
+        FunctionScoreQueryBuilder functionScoreQueryBuilder = QueryBuilders.functionScoreQuery(queryBuilder);
+        // 分数、分页
+        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(pageable)
+                .withQuery(functionScoreQueryBuilder).build();
+        Page<ESArticle> searchPageResults = articleSearchRepository.search(searchQuery);
+        return ResultUtils.ok(searchPageResults);
+
+    }
 }

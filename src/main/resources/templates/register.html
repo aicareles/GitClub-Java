@@ -83,7 +83,7 @@
             $.ajax({
                 type: "POST",
                 url: "/geekdaily/register",
-                data: {"nick_name":userName,"password":password},
+                data: {"username":username,"password":password},
                 success: function(data){
                     //前端调用成功后，可以处理后端传回的json格式数据。
                     if(data.code == 0){

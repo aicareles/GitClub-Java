@@ -2,7 +2,6 @@ package com.jerry.geekdaily.controller;
 
 import com.jerry.geekdaily.domain.Article;
 import com.jerry.geekdaily.domain.ESArticle;
-import com.jerry.geekdaily.repository.ESArticleSearchRepository;
 import com.jerry.geekdaily.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;

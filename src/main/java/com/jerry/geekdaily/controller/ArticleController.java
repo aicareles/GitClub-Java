@@ -115,6 +115,14 @@ public class ArticleController {
         return ResultUtils.ok(pages.getContent());
     }
 
+    @ApiOperation(value = "网页端获取文章列表")
+    @PostMapping("/getWebArticleList")
+    public Result<Article> getWebArticleList(@RequestParam("page") Integer page,
+                                          @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
+        Page<Article> pages = articleService.findAllReviewedArticles(PageRequest.of(page, size, new Sort(Sort.Direction.DESC, "date")));
+        return ResultUtils.ok(pages);
+    }
+
     @ApiOperation(value = "点赞/取消点赞接口")
     @PostMapping("/starArticle")
     public Result<Stars> starArticle(@Valid StarsDTO starsDTO, BindingResult bindingResult) {
