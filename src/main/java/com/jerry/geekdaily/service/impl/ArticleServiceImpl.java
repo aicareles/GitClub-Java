@@ -12,7 +12,6 @@ import com.jerry.geekdaily.enums.StarStatusEnum;
 import com.jerry.geekdaily.exception.ParamJsonException;
 import com.jerry.geekdaily.exception.ValidException;
 import com.jerry.geekdaily.repository.ArticleRepository;
-import com.jerry.geekdaily.repository.ESArticleSearchRepository;
 import com.jerry.geekdaily.service.ArticleService;
 import com.jerry.geekdaily.service.CommentService;
 import com.jerry.geekdaily.service.StarsService;
@@ -41,8 +40,8 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
 
-    @Autowired
-    private ESArticleSearchRepository articleSearchRepository;
+//    @Autowired
+//    private ESArticleSearchRepository articleSearchRepository;
 
     @Autowired
     private UserService userService;
@@ -136,7 +135,7 @@ public class ArticleServiceImpl implements ArticleService {
         //删除中间表stars中的article_id的所有数据
         starsService.deleteByArticleId(article_id);
         commentService.deleteAllByArticleId(article_id);
-        articleSearchRepository.deleteById(article_id);
+//        articleSearchRepository.deleteById(article_id);
     }
 
     @Override
@@ -250,7 +249,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public void saveArticle(Article article) {
         articleRepository.saveAndFlush(article);
-        articleSearchRepository.save(new ESArticle(article));
+//        articleSearchRepository.save(new ESArticle(article));
     }
 
     @Override

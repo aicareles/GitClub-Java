@@ -36,27 +36,23 @@ spring:
     static-locations: classpath:static/,file:static/
 
 
-  data:
-      elasticsearch:
-              cluster-name: es-geekdaily #默认为elasticsearch
-              cluster-nodes: 172.31.247.246:9300 #配置es节点信息，逗号分隔，如果没有指定，则启动ClientNode
-  #           cluster-nodes: 120.79.197.131:9300 #配置es节点信息，逗号分隔，如果没有指定，则启动ClientNode
-              properties:
-                  path:
-                    logs: ./elasticsearch/log #elasticsearch日志存储目录
-                    data: ./elasticsearch/data #elasticsearch数据存储目录
+#  data:
+#      elasticsearch:
+#              cluster-name: es-geekdaily #默认为elasticsearch
+#              cluster-nodes: 172.31.247.246:9300 #配置es节点信息，逗号分隔，如果没有指定，则启动ClientNode
+#  #           cluster-nodes: 120.79.197.131:9300 #配置es节点信息，逗号分隔，如果没有指定，则启动ClientNode
+#              properties:
+#                  path:
+#                    logs: ./elasticsearch/log #elasticsearch日志存储目录
+#                    data: ./elasticsearch/data #elasticsearch数据存储目录
 
 server:
-#  port: 80
-  port: 443
-  ssl:
-    key-store: classpath:214828842760447.pfx
-    key-store-password: TMKT1HpS
-    keyStoreType: PKCS12
+  port: 8085
+#  port: 443
 #  ssl:
-#      key-store: classpath:214828842760447.pfx
-#      key-store-password: 214828842760447
-#      keyStoreType: PKCS12
+#    key-store: classpath:214828842760447.pfx
+#    key-store-password: TMKT1HpS
+#    keyStoreType: PKCS12
 
 #  use-forward-headers: true
 #  tomcat:

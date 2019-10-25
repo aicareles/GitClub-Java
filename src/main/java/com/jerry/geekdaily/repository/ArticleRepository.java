@@ -36,6 +36,10 @@ public interface ArticleRepository extends JpaRepository<Article,Integer> {
     @Query("select u from Article u where u.date between :date and :endDate")
     Page<Article> randomFindFiveArticles(@Param("date")Date date, @Param("endDate")Date endDate, Pageable pageable);
 
+    @Query("select u from Article u where u.tag like CONCAT('%',:query,'%') " +
+            "or u.category like CONCAT('%',:query,'%') or u.title like CONCAT('%',:query,'%') or u.des like CONCAT('%',:query,'%')")
+    Page<Article> search(@Param("query") String query, Pageable pageable);
+
 //    @Modifying
 //    @Transactional
 //    @Query("update Article u set u.date = :currentDate where u.article_id in (:article_ids)")
